@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /produtos
+Disallow: /movimentacoes
+Disallow: /fornecedores
+Disallow: /relatorios
+Disallow: /auditoria
+Disallow: /ia
+Disallow: /api/
