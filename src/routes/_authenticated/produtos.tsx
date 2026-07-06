@@ -76,22 +76,47 @@ function ProdutosPage() {
           <p className="text-[11px] uppercase tracking-wider text-text-muted">Cadastro</p>
           <h1 className="text-2xl font-semibold tracking-tight mt-1">Produtos</h1>
         </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
-          <DialogTrigger asChild>
-            <Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
-              <Plus className="size-4 mr-1" /> Novo produto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader><DialogTitle>{editing ? "Editar produto" : "Novo produto"}</DialogTitle></DialogHeader>
-            <ProductForm
-              initial={editing}
-              categories={categories as any}
-              suppliers={suppliers as any}
-              onSaved={() => { setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["products"] }); }}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Dialog open={catOpen} onOpenChange={setCatOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Settings2 className="size-4 mr-1" /> Categorias
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader><DialogTitle>Gerenciar categorias</DialogTitle></DialogHeader>
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+                {categories.length === 0 && (
+                  <p className="text-sm text-text-muted text-center py-4">Nenhuma categoria cadastrada.</p>
+                )}
+                {categories.map((c: any) => (
+                  <div key={c.id} className="flex items-center justify-between gap-3 p-2 rounded-md bg-page-bg/60 border border-border/40">
+                    <span className="text-sm font-medium">{c.name}</span>
+                    <Button variant="ghost" size="sm" onClick={() => delCategory(c)} className="text-danger hover:text-danger h-7 w-7 p-0">
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+            <DialogTrigger asChild>
+              <Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
+                <Plus className="size-4 mr-1" /> Novo produto
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader><DialogTitle>{editing ? "Editar produto" : "Novo produto"}</DialogTitle></DialogHeader>
+              <ProductForm
+                initial={editing}
+                categories={categories as any}
+                suppliers={suppliers as any}
+                onSaved={() => { setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["products"] }); }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
 
       <Card className="p-4 bg-surface ring-1 ring-black/5 border-0 shadow-none flex flex-wrap items-center gap-3">
