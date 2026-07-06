@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/chat")({
           const key = process.env.LOVABLE_API_KEY;
           if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
-          const systemPrompt = `Você é o assistente inteligente da Dermasul Gestão, um sistema de estoque de clínica de estética.
+          const systemPrompt = `Você é o assistente inteligente da Taty Gomes Alta Estética Gestão, um sistema de estoque de clínica de estética.
 Responda em português brasileiro, de forma objetiva e profissional.
 Use os dados abaixo (JSON) como contexto atual do estoque para responder perguntas sobre validade, baixo estoque, sugestões de reposição, valor do estoque, tendências e relatórios gerenciais.
 Quando sugerir compras, priorize itens com estoque abaixo do mínimo ou próximos ao vencimento (30 dias).

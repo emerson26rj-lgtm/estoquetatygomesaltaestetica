@@ -7,7 +7,7 @@ import { AlertTriangle, TrendingUp, Package, DollarSign } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Taty Gomes Alta Estética Gestão" }] }),
   component: Dashboard,
 });
 

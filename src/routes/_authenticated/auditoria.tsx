@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/auditoria")({
-  head: () => ({ meta: [{ title: "Auditoria — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Auditoria — Taty Gomes Alta Estética Gestão" }] }),
   component: AuditPage,
 });
 

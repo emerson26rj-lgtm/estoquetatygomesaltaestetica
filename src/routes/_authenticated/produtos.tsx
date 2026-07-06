@@ -15,7 +15,7 @@ import { statusOf, currency, logAudit } from "@/lib/stock";
 import { StatusBadge } from "./dashboard";
 
 export const Route = createFileRoute("/_authenticated/produtos")({
-  head: () => ({ meta: [{ title: "Produtos — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Produtos — Taty Gomes Alta Estética Gestão" }] }),
   component: ProdutosPage,
 });
 

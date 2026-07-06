@@ -47,7 +47,7 @@ function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold tracking-tight truncate">Dermasul</p>
+              <p className="text-sm font-semibold tracking-tight truncate">Taty Gomes Alta Estética</p>
               <p className="text-[10px] text-text-muted truncate">Gestão de Estoque</p>
             </div>
           )}
