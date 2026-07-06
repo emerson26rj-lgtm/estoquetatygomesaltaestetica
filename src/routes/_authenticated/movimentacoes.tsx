@@ -89,11 +89,12 @@ function MovsPage() {
                 <th className="p-3 font-medium">Tipo</th>
                 <th className="p-3 font-medium text-right">Qtde</th>
                 <th className="p-3 font-medium">Motivo</th>
+                {isAdmin && <th className="p-3 font-medium w-10"></th>}
               </tr>
             </thead>
             <tbody>
               {movements.length === 0 && (
-                <tr><td colSpan={5} className="p-6 text-center text-text-muted">Nenhuma movimentação registrada.</td></tr>
+                <tr><td colSpan={isAdmin ? 6 : 5} className="p-6 text-center text-text-muted">Nenhuma movimentação registrada.</td></tr>
               )}
               {movements.map((m: any) => (
                 <tr key={m.id} className="border-b border-border/40 hover:bg-page-bg/60">
@@ -108,6 +109,13 @@ function MovsPage() {
                   </td>
                   <td className="p-3 text-right font-medium">{m.quantity} {m.products?.unit}</td>
                   <td className="p-3 text-text-muted">{m.reason || "—"}</td>
+                  {isAdmin && (
+                    <td className="p-3 text-right">
+                      <Button variant="ghost" size="icon" className="size-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50" onClick={() => deleteMovement(m)} title="Excluir movimentação">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
