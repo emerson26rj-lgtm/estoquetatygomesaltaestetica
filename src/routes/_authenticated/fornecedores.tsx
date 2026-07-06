@@ -13,7 +13,7 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import { logAudit } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/fornecedores")({
-  head: () => ({ meta: [{ title: "Fornecedores — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Fornecedores — Taty Gomes Alta Estética Gestão" }] }),
   component: FornecedoresPage,
 });
 

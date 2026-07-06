@@ -11,7 +11,7 @@ import { z } from "zod";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Dermasul Gestão" },
+      { title: "Entrar — Taty Gomes Alta Estética Gestão" },
       { name: "description", content: "Acesse o painel de gestão de estoque da sua clínica." },
     ],
   }),
@@ -74,7 +74,7 @@ function AuthPage() {
             <div className="size-2 rounded-full bg-brand-primary" />
           </div>
           <div>
-            <h1 className="text-base font-semibold tracking-tight">Dermasul Gestão</h1>
+            <h1 className="text-base font-semibold tracking-tight">Taty Gomes Alta Estética Gestão</h1>
             <p className="text-xs text-text-muted">Estoque inteligente para clínicas</p>
           </div>
         </div>

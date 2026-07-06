@@ -10,7 +10,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Relatórios — Taty Gomes Alta Estética Gestão" }] }),
   component: RelatoriosPage,
 });
 
@@ -26,7 +26,7 @@ function RelatoriosPage() {
 
   function exportProductsPdf() {
     const doc = new jsPDF();
-    doc.setFontSize(14); doc.text("Relatório de Estoque — Dermasul", 14, 16);
+    doc.setFontSize(14); doc.text("Relatório de Estoque — Taty Gomes Alta Estética", 14, 16);
     doc.setFontSize(10); doc.text(new Date().toLocaleString("pt-BR"), 14, 22);
     autoTable(doc, {
       startY: 28,
@@ -55,7 +55,7 @@ function RelatoriosPage() {
 
   function exportMovsPdf() {
     const doc = new jsPDF();
-    doc.setFontSize(14); doc.text("Relatório de Movimentações — Dermasul", 14, 16);
+    doc.setFontSize(14); doc.text("Relatório de Movimentações — Taty Gomes Alta Estética", 14, 16);
     doc.setFontSize(10); doc.text(new Date().toLocaleString("pt-BR"), 14, 22);
     autoTable(doc, {
       startY: 28,

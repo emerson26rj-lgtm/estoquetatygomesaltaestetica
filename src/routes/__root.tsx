@@ -70,9 +70,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Dermasul Gestão — Estoque para Clínica de Estética" },
+      { title: "Taty Gomes Alta Estética Gestão — Estoque para Clínica de Estética" },
       { name: "description", content: "Sistema profissional de gestão de estoque para clínicas de estética, com controle de validade, movimentações e IA integrada." },
-      { property: "og:title", content: "Dermasul Gestão — Estoque para Clínica de Estética" },
+      { property: "og:title", content: "Taty Gomes Alta Estética Gestão — Estoque para Clínica de Estética" },
       { property: "og:description", content: "Controle completo de estoque, fornecedores e movimentações com assistente inteligente." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

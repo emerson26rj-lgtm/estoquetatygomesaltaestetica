@@ -10,7 +10,7 @@ import { Sparkles, Send } from "lucide-react";
 import { statusOf } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/ia")({
-  head: () => ({ meta: [{ title: "Assistente IA — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Assistente IA — Taty Gomes Alta Estética Gestão" }] }),
   component: IaPage,
 });
 
@@ -30,7 +30,7 @@ function IaPage() {
   });
 
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", content: "Olá! Sou o assistente da Dermasul. Pergunte sobre estoque, validade, reposição e tendências de consumo." },
+    { role: "assistant", content: "Olá! Sou o assistente da Taty Gomes Alta Estética. Pergunte sobre estoque, validade, reposição e tendências de consumo." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

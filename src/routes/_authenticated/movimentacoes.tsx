@@ -14,7 +14,7 @@ import { ArrowDownLeft, ArrowUpRight, Plus, Trash2 } from "lucide-react";
 import { logAudit } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/movimentacoes")({
-  head: () => ({ meta: [{ title: "Movimentações — Dermasul Gestão" }] }),
+  head: () => ({ meta: [{ title: "Movimentações — Taty Gomes Alta Estética Gestão" }] }),
   component: MovsPage,
 });
 
