@@ -1,9 +1,6 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import "@fontsource/instrument-sans/400.css";
-@import "@fontsource/instrument-sans/500.css";
-@import "@fontsource/instrument-sans/600.css";
 
 @custom-variant dark (&:is(.dark *));
 
