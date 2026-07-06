@@ -60,6 +60,15 @@ function ProdutosPage() {
     qc.invalidateQueries({ queryKey: ["products"] });
   }
 
+  async function delCategory(c: any) {
+    if (!confirm(`Excluir categoria "${c.name}"?\n\nProdutos vinculados ficarão sem categoria.`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", c.id);
+    if (error) return toast.error(error.message);
+    toast.success("Categoria excluída");
+    qc.invalidateQueries({ queryKey: ["categories"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+  }
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
