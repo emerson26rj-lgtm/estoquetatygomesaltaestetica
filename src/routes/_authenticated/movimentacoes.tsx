@@ -21,6 +21,25 @@ export const Route = createFileRoute("/_authenticated/movimentacoes")({
 function MovsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id).eq("role", "admin").maybeSingle();
+      setIsAdmin(!!data);
+    })();
+  }, []);
+
+  async function deleteMovement(m: any) {
+    if (!confirm(`Excluir movimentação de ${m.quantity} ${m.products?.unit ?? ""} (${m.type === "in" ? "entrada" : "saída"}) de "${m.products?.name ?? ""}"? O estoque será revertido.`)) return;
+    const { error } = await supabase.from("movements").delete().eq("id", m.id);
+    if (error) return toast.error(error.message);
+    await logAudit("delete", "movement", m.id, { type: m.type, quantity: m.quantity, product_id: m.product_id });
+    toast.success("Movimentação excluída e estoque revertido");
+    qc.invalidateQueries();
+  }
 
   const { data: movements = [] } = useQuery({
     queryKey: ["movements"],
