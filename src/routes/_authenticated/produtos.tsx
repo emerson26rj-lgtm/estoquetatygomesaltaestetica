@@ -25,6 +25,7 @@ function ProdutosPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [catOpen, setCatOpen] = useState(false);
 
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
