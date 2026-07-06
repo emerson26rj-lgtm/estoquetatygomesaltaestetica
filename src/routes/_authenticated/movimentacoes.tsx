@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDownLeft, ArrowUpRight, Plus } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus, Trash2 } from "lucide-react";
 import { logAudit } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/movimentacoes")({
@@ -21,6 +21,25 @@ export const Route = createFileRoute("/_authenticated/movimentacoes")({
 function MovsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id).eq("role", "admin").maybeSingle();
+      setIsAdmin(!!data);
+    })();
+  }, []);
+
+  async function deleteMovement(m: any) {
+    if (!confirm(`Excluir movimentação de ${m.quantity} ${m.products?.unit ?? ""} (${m.type === "in" ? "entrada" : "saída"}) de "${m.products?.name ?? ""}"? O estoque será revertido.`)) return;
+    const { error } = await supabase.from("movements").delete().eq("id", m.id);
+    if (error) return toast.error(error.message);
+    await logAudit("delete", "movement", m.id, { type: m.type, quantity: m.quantity, product_id: m.product_id });
+    toast.success("Movimentação excluída e estoque revertido");
+    qc.invalidateQueries();
+  }
 
   const { data: movements = [] } = useQuery({
     queryKey: ["movements"],
@@ -70,11 +89,12 @@ function MovsPage() {
                 <th className="p-3 font-medium">Tipo</th>
                 <th className="p-3 font-medium text-right">Qtde</th>
                 <th className="p-3 font-medium">Motivo</th>
+                {isAdmin && <th className="p-3 font-medium w-10"></th>}
               </tr>
             </thead>
             <tbody>
               {movements.length === 0 && (
-                <tr><td colSpan={5} className="p-6 text-center text-text-muted">Nenhuma movimentação registrada.</td></tr>
+                <tr><td colSpan={isAdmin ? 6 : 5} className="p-6 text-center text-text-muted">Nenhuma movimentação registrada.</td></tr>
               )}
               {movements.map((m: any) => (
                 <tr key={m.id} className="border-b border-border/40 hover:bg-page-bg/60">
@@ -89,6 +109,13 @@ function MovsPage() {
                   </td>
                   <td className="p-3 text-right font-medium">{m.quantity} {m.products?.unit}</td>
                   <td className="p-3 text-text-muted">{m.reason || "—"}</td>
+                  {isAdmin && (
+                    <td className="p-3 text-right">
+                      <Button variant="ghost" size="icon" className="size-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50" onClick={() => deleteMovement(m)} title="Excluir movimentação">
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
