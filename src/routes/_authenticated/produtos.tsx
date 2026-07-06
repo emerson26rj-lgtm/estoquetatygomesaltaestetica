@@ -158,6 +158,7 @@ function ProdutosPage() {
 }
 
 function ProductForm({ initial, categories, suppliers, onSaved }: { initial: any; categories: any[]; suppliers: any[]; onSaved: () => void }) {
+  const qc = useQueryClient();
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     internal_code: initial?.internal_code ?? "",
@@ -172,6 +173,21 @@ function ProductForm({ initial, categories, suppliers, onSaved }: { initial: any
     notes: initial?.notes ?? "",
   });
   const [saving, setSaving] = useState(false);
+  const [newCat, setNewCat] = useState("");
+  const [creatingCat, setCreatingCat] = useState(false);
+
+  async function createCategory() {
+    const name = newCat.trim();
+    if (!name) return toast.error("Informe um nome de categoria");
+    const { data, error } = await supabase.from("categories").insert({ name }).select().single();
+    if (error) return toast.error(error.message);
+    toast.success("Categoria criada");
+    setNewCat("");
+    setCreatingCat(false);
+    await qc.invalidateQueries({ queryKey: ["categories"] });
+    setForm((f) => ({ ...f, category_id: data.id }));
+  }
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -204,10 +220,21 @@ function ProductForm({ initial, categories, suppliers, onSaved }: { initial: any
       <div className="space-y-1.5"><Label>Unidade</Label><Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} maxLength={10} /></div>
       <div className="space-y-1.5">
         <Label>Categoria</Label>
-        <Select value={form.category_id || undefined} onValueChange={(v) => setForm({ ...form, category_id: v })}>
-          <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
-          <SelectContent>{categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-        </Select>
+        {creatingCat ? (
+          <div className="flex gap-2">
+            <Input autoFocus value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder="Nome da nova categoria" maxLength={80} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); createCategory(); } }} />
+            <Button type="button" size="sm" onClick={createCategory} className="bg-brand-primary hover:bg-brand-primary/90 text-white">Criar</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => { setCreatingCat(false); setNewCat(""); }}>Cancelar</Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Select value={form.category_id || undefined} onValueChange={(v) => setForm({ ...form, category_id: v })}>
+              <SelectTrigger className="flex-1"><SelectValue placeholder="Selecionar" /></SelectTrigger>
+              <SelectContent>{categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+            </Select>
+            <Button type="button" size="icon" variant="outline" onClick={() => setCreatingCat(true)} title="Nova categoria"><Plus className="size-4" /></Button>
+          </div>
+        )}
       </div>
       <div className="space-y-1.5">
         <Label>Fornecedor</Label>
