@@ -62,7 +62,7 @@ function AppSidebar({ isAdmin }: { isAdmin: boolean }) {
           {!collapsed && <SidebarGroupLabel>Módulos</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => {
+              {visibleItems.map((item) => {
                 const active = pathname.startsWith(item.to);
                 return (
                   <SidebarMenuItem key={item.to}>
