@@ -40,6 +40,9 @@ type Anamnese = {
   produtos_utilizados?: string;
   observacoes?: string;
   assinatura_cliente?: string;
+  peso?: number | string;
+  altura?: number | string;
+  medidas?: string;
 };
 
 function AnamnesePage() {
