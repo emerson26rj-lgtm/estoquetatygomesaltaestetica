@@ -74,10 +74,13 @@ function ServicosPage() {
     qc.invalidateQueries({ queryKey: ["services"] });
   }
 
-  function profName(id: string | null) {
-    if (!id) return "—";
-    const p = professionals.find((x: any) => x.id === id);
-    return p?.full_name || p?.email || "—";
+  async function delProf(p: any) {
+    if (!confirm(`Excluir profissional "${p.name}"?`)) return;
+    const { error } = await supabase.from("professionals").delete().eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Profissional excluído");
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+    qc.invalidateQueries({ queryKey: ["services"] });
   }
 
   return (
@@ -88,6 +91,15 @@ function ServicosPage() {
           <h1 className="text-2xl font-semibold tracking-tight mt-1">Serviços</h1>
         </div>
         <div className="flex gap-2">
+          <Dialog open={profOpen} onOpenChange={setProfOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline"><Users className="size-4 mr-1" /> Profissionais</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>Gerenciar profissionais</DialogTitle></DialogHeader>
+              <ProfessionalManager professionals={professionals as any} onDel={delProf} />
+            </DialogContent>
+          </Dialog>
           <Dialog open={catOpen} onOpenChange={setCatOpen}>
             <DialogTrigger asChild>
               <Button variant="outline"><Settings2 className="size-4 mr-1" /> Categorias</Button>
