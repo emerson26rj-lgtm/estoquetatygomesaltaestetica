@@ -7,7 +7,7 @@ import {
   SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut, Users, UserCog, FileHeart,
+  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut, Users, UserCog, FileHeart, Scissors,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -28,6 +28,7 @@ const items = [
   { to: "/clientes", label: "Clientes", icon: Users, adminOnly: false },
   { to: "/anamnese", label: "Anamnese", icon: FileHeart, adminOnly: false },
   { to: "/produtos", label: "Produtos", icon: Package, adminOnly: false },
+  { to: "/servicos", label: "Serviços", icon: Scissors, adminOnly: false },
   { to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight, adminOnly: false },
   { to: "/fornecedores", label: "Fornecedores", icon: Truck, adminOnly: false },
   { to: "/relatorios", label: "Relatórios", icon: FileText, adminOnly: false },
