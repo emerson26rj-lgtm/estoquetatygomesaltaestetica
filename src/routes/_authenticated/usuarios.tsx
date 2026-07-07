@@ -97,6 +97,32 @@ function UsuariosPage() {
     }
   }
 
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      await createUser({
+        data: {
+          email: form.email.trim(),
+          password: form.password,
+          fullName: form.fullName.trim() || undefined,
+          makeAdmin: form.makeAdmin,
+        },
+      });
+      toast.success("Usuário criado com sucesso");
+      setForm({ email: "", password: "", fullName: "", makeAdmin: false });
+      setCreateOpen(false);
+      qc.invalidateQueries({ queryKey: ["all-profiles"] });
+      qc.invalidateQueries({ queryKey: ["all-roles"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao criar usuário");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+
+
 
   if (checking) return <p className="text-sm text-text-muted">Carregando…</p>;
   if (!isAdmin) {
