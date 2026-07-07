@@ -11,8 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, Trash2, Pencil, Settings2, X, Users } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Settings2, X, Users, Calendar as CalendarIcon } from "lucide-react";
 import { currency, logAudit } from "@/lib/stock";
+import { useServerFn } from "@tanstack/react-start";
+import { getGoogleAuthUrl, disconnectGoogle } from "@/lib/appointments.functions";
 
 export const Route = createFileRoute("/_authenticated/servicos")({
   head: () => ({ meta: [{ title: "Serviços — Taty Gomes Alta Estética Gestão" }] }),
@@ -402,6 +404,29 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
     qc.invalidateQueries({ queryKey: ["professionals"] });
   }
 
+  const getAuthUrl = useServerFn(getGoogleAuthUrl);
+  const disconnect = useServerFn(disconnectGoogle);
+
+  async function connectGoogle(p: any) {
+    try {
+      const { url } = await getAuthUrl({ data: { professional_id: p.id, origin: window.location.origin } });
+      window.location.href = url;
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao iniciar conexão com Google");
+    }
+  }
+
+  async function disconnectGoogleFn(p: any) {
+    if (!confirm(`Desconectar Google Agenda de "${p.name}"?`)) return;
+    try {
+      await disconnect({ data: { professional_id: p.id } });
+      toast.success("Google desconectado");
+      qc.invalidateQueries({ queryKey: ["professionals"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro");
+    }
+  }
+
   return (
     <div className="space-y-4">
       <form onSubmit={create} className="grid grid-cols-2 gap-2 p-3 rounded-md border border-border/60">
@@ -415,25 +440,47 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
           </Button>
         </div>
       </form>
-      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
         {professionals.length === 0 && <p className="text-sm text-text-muted text-center py-4">Nenhum profissional cadastrado.</p>}
         {professionals.map((p: any) => (
-          <div key={p.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-page-bg/60 border border-border/40">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium truncate">{p.name}</p>
-              <p className="text-[11px] text-text-muted truncate">
-                {[p.specialty, p.phone, p.email].filter(Boolean).join(" · ") || "—"}
-              </p>
+          <div key={p.id} className="p-2 rounded-md bg-page-bg/60 border border-border/40 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{p.name}</p>
+                <p className="text-[11px] text-text-muted truncate">
+                  {[p.specialty, p.phone, p.email].filter(Boolean).join(" · ") || "—"}
+                </p>
+              </div>
+              <Badge variant="secondary" className={p.active ? "bg-emerald-500/15 text-emerald-700" : ""}>
+                {p.active ? "Ativo" : "Inativo"}
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={() => toggleActive(p)} className="h-7 text-xs">
+                {p.active ? "Desativar" : "Ativar"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => onDel(p)} className="text-danger hover:text-danger h-7 w-7 p-0">
+                <Trash2 className="size-3.5" />
+              </Button>
             </div>
-            <Badge variant="secondary" className={p.active ? "bg-emerald-500/15 text-emerald-700" : ""}>
-              {p.active ? "Ativo" : "Inativo"}
-            </Badge>
-            <Button variant="ghost" size="sm" onClick={() => toggleActive(p)} className="h-7 text-xs">
-              {p.active ? "Desativar" : "Ativar"}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onDel(p)} className="text-danger hover:text-danger h-7 w-7 p-0">
-              <Trash2 className="size-3.5" />
-            </Button>
+            <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+              <CalendarIcon className="size-3.5 text-text-muted" />
+              {p.google_refresh_token ? (
+                <>
+                  <span className="text-[11px] text-emerald-700 truncate flex-1">
+                    Google conectado{p.google_email ? ` · ${p.google_email}` : ""}
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={() => disconnectGoogleFn(p)} className="h-7 text-[11px]">
+                    Desconectar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="text-[11px] text-text-muted flex-1">Google Agenda não conectado</span>
+                  <Button variant="outline" size="sm" onClick={() => connectGoogle(p)} className="h-7 text-[11px]">
+                    Conectar Google
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         ))}
       </div>
