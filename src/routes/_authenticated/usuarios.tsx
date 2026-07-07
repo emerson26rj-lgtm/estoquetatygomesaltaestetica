@@ -33,10 +33,14 @@ export const Route = createFileRoute("/_authenticated/usuarios")({
 function UsuariosPage() {
   const qc = useQueryClient();
   const deleteUser = useServerFn(deleteUserAccount);
+  const createUser = useServerFn(createUserAccount);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "", fullName: "", makeAdmin: false });
 
   useEffect(() => {
     (async () => {
