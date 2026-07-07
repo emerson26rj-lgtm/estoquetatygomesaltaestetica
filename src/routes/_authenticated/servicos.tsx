@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, Trash2, Pencil, Settings2, X } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Settings2, X, Users } from "lucide-react";
 import { currency, logAudit } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/servicos")({
@@ -25,13 +25,14 @@ function ServicosPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [catOpen, setCatOpen] = useState(false);
+  const [profOpen, setProfOpen] = useState(false);
 
   const { data: services = [] } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("services")
-        .select("*, service_categories(name), service_products(id, quantity, products(id, name, unit))")
+        .select("*, service_categories(name), professionals(id, name), service_products(id, quantity, products(id, name, unit))")
         .order("name");
       if (error) throw error;
       return data ?? [];
@@ -42,8 +43,8 @@ function ServicosPage() {
     queryFn: async () => (await supabase.from("service_categories").select("*").order("name")).data ?? [],
   });
   const { data: professionals = [] } = useQuery({
-    queryKey: ["all-profiles-services"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email").order("full_name")).data ?? [],
+    queryKey: ["professionals"],
+    queryFn: async () => (await supabase.from("professionals").select("*").order("name")).data ?? [],
   });
   const { data: products = [] } = useQuery({
     queryKey: ["products-for-services"],
