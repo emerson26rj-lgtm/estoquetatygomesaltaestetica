@@ -24,13 +24,16 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 const items = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/produtos", label: "Produtos", icon: Package },
-  { to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight },
-  { to: "/fornecedores", label: "Fornecedores", icon: Truck },
-  { to: "/relatorios", label: "Relatórios", icon: FileText },
-  { to: "/ia", label: "Assistente IA", icon: Sparkles },
-  { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
+  { to: "/clientes", label: "Clientes", icon: Users, adminOnly: false },
+  { to: "/anamnese", label: "Anamnese", icon: FileHeart, adminOnly: false },
+  { to: "/produtos", label: "Produtos", icon: Package, adminOnly: false },
+  { to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight, adminOnly: false },
+  { to: "/fornecedores", label: "Fornecedores", icon: Truck, adminOnly: false },
+  { to: "/relatorios", label: "Relatórios", icon: FileText, adminOnly: false },
+  { to: "/ia", label: "Assistente IA", icon: Sparkles, adminOnly: false },
+  { to: "/usuarios", label: "Usuários", icon: UserCog, adminOnly: true },
+  { to: "/auditoria", label: "Auditoria", icon: ShieldCheck, adminOnly: true },
 ] as const;
 
 function AppSidebar() {
