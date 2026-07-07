@@ -23,10 +23,8 @@ const passwordSchema = z.string().min(6, "Mínimo 6 caracteres").max(72);
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,24 +39,10 @@ function AuthPage() {
     try {
       const em = emailSchema.parse(email);
       const pw = passwordSchema.parse(password);
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: em,
-          password: pw,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: name.trim() || em.split("@")[0] },
-          },
-        });
-        if (error) throw error;
-        toast.success("Cadastro criado. Você já pode entrar.");
-        setMode("signin");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: em, password: pw });
-        if (error) throw error;
-        toast.success("Bem-vindo(a) de volta.");
-        navigate({ to: "/dashboard", replace: true });
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email: em, password: pw });
+      if (error) throw error;
+      toast.success("Bem-vindo(a) de volta.");
+      navigate({ to: "/dashboard", replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Falha ao autenticar");
     } finally {
@@ -79,20 +63,12 @@ function AuthPage() {
           </div>
         </div>
 
-        <h2 className="text-xl font-semibold tracking-tight mb-1">
-          {mode === "signin" ? "Entrar" : "Criar conta"}
-        </h2>
+        <h2 className="text-xl font-semibold tracking-tight mb-1">Entrar</h2>
         <p className="text-sm text-text-muted mb-6">
-          {mode === "signin" ? "Acesse o painel da sua clínica." : "O primeiro cadastro recebe acesso de administrador."}
+          Acesse o painel da sua clínica. Novos acessos são criados pelo administrador.
         </p>
 
         <form onSubmit={submit} className="space-y-4">
-          {mode === "signup" && (
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Nome completo</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
-            </div>
-          )}
           <div className="space-y-1.5">
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -103,16 +79,13 @@ function AuthPage() {
           </div>
 
           <Button type="submit" disabled={loading} className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white">
-            {loading ? "Aguarde..." : mode === "signin" ? "Entrar" : "Criar conta"}
+            {loading ? "Aguarde..." : "Entrar"}
           </Button>
         </form>
 
-        <button
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-6 w-full text-center text-xs text-brand-primary underline underline-offset-4"
-        >
-          {mode === "signin" ? "Não tem conta? Cadastre-se" : "Já tem conta? Entrar"}
-        </button>
+        <p className="mt-6 text-center text-xs text-text-muted">
+          Precisa de acesso? Peça ao administrador para criar sua conta.
+        </p>
       </Card>
     </div>
   );
