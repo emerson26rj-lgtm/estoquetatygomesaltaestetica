@@ -28,8 +28,11 @@ export const Route = createFileRoute("/_authenticated/usuarios")({
 
 function UsuariosPage() {
   const qc = useQueryClient();
+  const deleteUser = useServerFn(deleteUserAccount);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
