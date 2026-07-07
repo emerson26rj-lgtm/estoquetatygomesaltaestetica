@@ -40,6 +40,9 @@ type Anamnese = {
   produtos_utilizados?: string;
   observacoes?: string;
   assinatura_cliente?: string;
+  peso?: number | string;
+  altura?: number | string;
+  medidas?: string;
 };
 
 function AnamnesePage() {
@@ -117,6 +120,33 @@ function AnamnesePage() {
             <div className="space-y-1.5">
               <Label>Queixa principal</Label>
               <Textarea rows={2} value={editing.queixa_principal ?? ""} onChange={(e) => setEditing({ ...editing, queixa_principal: e.target.value })} />
+            </div>
+          </Card>
+
+          <Card className="p-5 space-y-4 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+            <h2 className="text-sm font-semibold">Medidas corporais</h2>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Peso (kg)</Label>
+                <Input type="number" step="0.01" min="0" value={editing.peso ?? ""} onChange={(e) => setEditing({ ...editing, peso: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Altura (m)</Label>
+                <Input type="number" step="0.01" min="0" value={editing.altura ?? ""} onChange={(e) => setEditing({ ...editing, altura: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>IMC</Label>
+                <Input readOnly value={(() => {
+                  const p = parseFloat(editing.peso as any);
+                  const a = parseFloat(editing.altura as any);
+                  if (!p || !a || a === 0) return "";
+                  return (p / (a * a)).toFixed(1);
+                })()} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Medidas (cintura, quadril, etc.)</Label>
+              <Textarea rows={2} value={editing.medidas ?? ""} onChange={(e) => setEditing({ ...editing, medidas: e.target.value })} />
             </div>
           </Card>
 
