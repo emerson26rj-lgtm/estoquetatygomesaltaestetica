@@ -103,6 +103,85 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          client_id: string | null
+          client_name: string | null
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          google_calendar_id: string | null
+          google_event_id: string | null
+          google_sync_error: string | null
+          id: string
+          notes: string | null
+          price: number | null
+          professional_id: string
+          service_id: string | null
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          google_sync_error?: string | null
+          id?: string
+          notes?: string | null
+          price?: number | null
+          professional_id: string
+          service_id?: string | null
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          client_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          google_sync_error?: string | null
+          id?: string
+          notes?: string | null
+          price?: number | null
+          professional_id?: string
+          service_id?: string | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -314,6 +393,12 @@ export type Database = {
           active: boolean
           created_at: string
           email: string | null
+          google_access_token: string | null
+          google_calendar_id: string | null
+          google_connected_at: string | null
+          google_email: string | null
+          google_refresh_token: string | null
+          google_token_expires_at: string | null
           id: string
           name: string
           notes: string | null
@@ -325,6 +410,12 @@ export type Database = {
           active?: boolean
           created_at?: string
           email?: string | null
+          google_access_token?: string | null
+          google_calendar_id?: string | null
+          google_connected_at?: string | null
+          google_email?: string | null
+          google_refresh_token?: string | null
+          google_token_expires_at?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -336,6 +427,12 @@ export type Database = {
           active?: boolean
           created_at?: string
           email?: string | null
+          google_access_token?: string | null
+          google_calendar_id?: string | null
+          google_connected_at?: string | null
+          google_email?: string | null
+          google_refresh_token?: string | null
+          google_token_expires_at?: string | null
           id?: string
           name?: string
           notes?: string | null
