@@ -372,3 +372,71 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
     </form>
   );
 }
+
+function ProfessionalManager({ professionals, onDel }: { professionals: any[]; onDel: (p: any) => void }) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true });
+  const [saving, setSaving] = useState(false);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) return toast.error("Nome obrigatório");
+    setSaving(true);
+    const { error } = await supabase.from("professionals").insert({
+      name: form.name,
+      specialty: form.specialty || null,
+      phone: form.phone || null,
+      email: form.email || null,
+      active: form.active,
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Profissional cadastrado");
+    setForm({ name: "", specialty: "", phone: "", email: "", active: true });
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
+  async function toggleActive(p: any) {
+    const { error } = await supabase.from("professionals").update({ active: !p.active }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
+  return (
+    <div className="space-y-4">
+      <form onSubmit={create} className="grid grid-cols-2 gap-2 p-3 rounded-md border border-border/60">
+        <div className="col-span-2 space-y-1"><Label className="text-xs">Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={150} required /></div>
+        <div className="space-y-1"><Label className="text-xs">Especialidade</Label><Input value={form.specialty} onChange={(e) => setForm({ ...form, specialty: e.target.value })} maxLength={100} /></div>
+        <div className="space-y-1"><Label className="text-xs">Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} maxLength={30} /></div>
+        <div className="col-span-2 space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="col-span-2 flex justify-end">
+          <Button type="submit" size="sm" disabled={saving} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
+            <Plus className="size-4 mr-1" /> {saving ? "Salvando..." : "Cadastrar"}
+          </Button>
+        </div>
+      </form>
+      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+        {professionals.length === 0 && <p className="text-sm text-text-muted text-center py-4">Nenhum profissional cadastrado.</p>}
+        {professionals.map((p: any) => (
+          <div key={p.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-page-bg/60 border border-border/40">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium truncate">{p.name}</p>
+              <p className="text-[11px] text-text-muted truncate">
+                {[p.specialty, p.phone, p.email].filter(Boolean).join(" · ") || "—"}
+              </p>
+            </div>
+            <Badge variant="secondary" className={p.active ? "bg-emerald-500/15 text-emerald-700" : ""}>
+              {p.active ? "Ativo" : "Inativo"}
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={() => toggleActive(p)} className="h-7 text-xs">
+              {p.active ? "Desativar" : "Ativar"}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onDel(p)} className="text-danger hover:text-danger h-7 w-7 p-0">
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
