@@ -38,6 +38,7 @@ function UsuariosPage() {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return setChecking(false);
+      setCurrentUserId(u.user.id);
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
       setIsAdmin(!!data?.some((r) => r.role === "admin"));
       setChecking(false);
