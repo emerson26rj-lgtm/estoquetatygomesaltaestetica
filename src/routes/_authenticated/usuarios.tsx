@@ -136,11 +136,52 @@ function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-[11px] uppercase tracking-wider text-text-muted">Administração</p>
-        <h1 className="text-2xl font-semibold tracking-tight mt-1">Usuários do sistema</h1>
-        <p className="text-sm text-text-muted mt-1">{profiles.length} conta(s) cadastrada(s).</p>
+      <header className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[11px] uppercase tracking-wider text-text-muted">Administração</p>
+          <h1 className="text-2xl font-semibold tracking-tight mt-1">Usuários do sistema</h1>
+          <p className="text-sm text-text-muted mt-1">{profiles.length} conta(s) cadastrada(s).</p>
+        </div>
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
+              <UserPlus className="size-4 mr-1.5" /> Novo usuário
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Criar novo usuário</DialogTitle>
+              <DialogDescription>
+                Somente administradores podem criar contas. Informe os dados de acesso.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="nu-name">Nome completo</Label>
+                <Input id="nu-name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} maxLength={120} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="nu-email">E-mail</Label>
+                <Input id="nu-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="nu-password">Senha</Label>
+                <Input id="nu-password" type="text" required minLength={6} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                <p className="text-xs text-text-muted">Mínimo 6 caracteres. Compartilhe com o usuário para o primeiro acesso.</p>
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <Checkbox checked={form.makeAdmin} onCheckedChange={(v) => setForm({ ...form, makeAdmin: !!v })} />
+                Conceder privilégios de administrador
+              </label>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Cancelar</Button>
+                <Button type="submit" disabled={creating}>{creating ? "Criando…" : "Criar usuário"}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </header>
+
 
       <Card className="bg-surface ring-1 ring-black/5 border-0 shadow-none overflow-hidden">
         {error && <p className="p-6 text-sm text-danger">Erro ao carregar contas.</p>}
