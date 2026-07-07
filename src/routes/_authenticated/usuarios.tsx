@@ -1,12 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, ShieldOff } from "lucide-react";
+import { ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { deleteUserAccount } from "@/lib/admin-users.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — Taty Gomes Alta Estética Gestão" }] }),
@@ -15,13 +28,17 @@ export const Route = createFileRoute("/_authenticated/usuarios")({
 
 function UsuariosPage() {
   const qc = useQueryClient();
+  const deleteUser = useServerFn(deleteUserAccount);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return setChecking(false);
+      setCurrentUserId(u.user.id);
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
       setIsAdmin(!!data?.some((r) => r.role === "admin"));
       setChecking(false);
@@ -57,6 +74,21 @@ function UsuariosPage() {
     }
     qc.invalidateQueries({ queryKey: ["all-roles"] });
   }
+
+  async function handleDelete(userId: string) {
+    setDeletingId(userId);
+    try {
+      await deleteUser({ data: { userId } });
+      toast.success("Usuário excluído");
+      qc.invalidateQueries({ queryKey: ["all-profiles"] });
+      qc.invalidateQueries({ queryKey: ["all-roles"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao excluir usuário");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
 
   if (checking) return <p className="text-sm text-text-muted">Carregando…</p>;
   if (!isAdmin) {
@@ -107,9 +139,34 @@ function UsuariosPage() {
                     </td>
                     <td className="p-3 text-text-muted text-xs">{new Date(p.created_at).toLocaleDateString("pt-BR")}</td>
                     <td className="p-3 text-right">
-                      <Button size="sm" variant="outline" onClick={() => toggleAdmin(p.id, !admin)}>
-                        {admin ? <><ShieldOff className="size-3.5 mr-1.5" /> Revogar admin</> : <><ShieldCheck className="size-3.5 mr-1.5" /> Tornar admin</>}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => toggleAdmin(p.id, !admin)}>
+                          {admin ? <><ShieldOff className="size-3.5 mr-1.5" /> Revogar admin</> : <><ShieldCheck className="size-3.5 mr-1.5" /> Tornar admin</>}
+                        </Button>
+                        {p.id !== currentUserId && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="destructive" disabled={deletingId === p.id}>
+                                <Trash2 className="size-3.5 mr-1.5" /> Excluir
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação é permanente. A conta de <strong>{p.full_name ?? p.email ?? "usuário"}</strong> será removida do sistema, incluindo acesso e papéis.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(p.id)}>
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
