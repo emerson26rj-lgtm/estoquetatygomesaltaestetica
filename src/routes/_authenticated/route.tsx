@@ -89,13 +89,16 @@ function AuthLayout() {
   const qc = useQueryClient();
   const [email, setEmail] = useState<string>("");
   const [role, setRole] = useState<string>("usuário");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
       setEmail(data.user.email ?? "");
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-      if (roles?.some((r) => r.role === "admin")) setRole("administrador");
+      const admin = !!roles?.some((r) => r.role === "admin");
+      setIsAdmin(admin);
+      if (admin) setRole("administrador");
     });
   }, []);
 
@@ -110,7 +113,7 @@ function AuthLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-page-bg">
-        <AppSidebar />
+        <AppSidebar isAdmin={isAdmin} />
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-10 h-14 flex items-center justify-between gap-3 border-b border-border/60 bg-page-bg/80 backdrop-blur-md px-3 sm:px-6">
             <div className="flex items-center gap-2 min-w-0">
