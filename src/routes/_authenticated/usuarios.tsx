@@ -75,6 +75,21 @@ function UsuariosPage() {
     qc.invalidateQueries({ queryKey: ["all-roles"] });
   }
 
+  async function handleDelete(userId: string) {
+    setDeletingId(userId);
+    try {
+      await deleteUser({ data: { userId } });
+      toast.success("Usuário excluído");
+      qc.invalidateQueries({ queryKey: ["all-profiles"] });
+      qc.invalidateQueries({ queryKey: ["all-roles"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao excluir usuário");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+
   if (checking) return <p className="text-sm text-text-muted">Carregando…</p>;
   if (!isAdmin) {
     return (
