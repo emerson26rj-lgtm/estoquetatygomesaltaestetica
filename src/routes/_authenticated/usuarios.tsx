@@ -139,9 +139,34 @@ function UsuariosPage() {
                     </td>
                     <td className="p-3 text-text-muted text-xs">{new Date(p.created_at).toLocaleDateString("pt-BR")}</td>
                     <td className="p-3 text-right">
-                      <Button size="sm" variant="outline" onClick={() => toggleAdmin(p.id, !admin)}>
-                        {admin ? <><ShieldOff className="size-3.5 mr-1.5" /> Revogar admin</> : <><ShieldCheck className="size-3.5 mr-1.5" /> Tornar admin</>}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => toggleAdmin(p.id, !admin)}>
+                          {admin ? <><ShieldOff className="size-3.5 mr-1.5" /> Revogar admin</> : <><ShieldCheck className="size-3.5 mr-1.5" /> Tornar admin</>}
+                        </Button>
+                        {p.id !== currentUserId && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="destructive" disabled={deletingId === p.id}>
+                                <Trash2 className="size-3.5 mr-1.5" /> Excluir
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir usuário?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação é permanente. A conta de <strong>{p.full_name ?? p.email ?? "usuário"}</strong> será removida do sistema, incluindo acesso e papéis.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(p.id)}>
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
