@@ -36,10 +36,11 @@ const items = [
   { to: "/auditoria", label: "Auditoria", icon: ShieldCheck, adminOnly: true },
 ] as const;
 
-function AppSidebar() {
+function AppSidebar({ isAdmin }: { isAdmin: boolean }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const visibleItems = items.filter((i) => !i.adminOnly || isAdmin);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/60">
