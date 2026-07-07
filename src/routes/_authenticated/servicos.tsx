@@ -209,7 +209,7 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
     price: initial?.price ?? 0,
     duration_minutes: initial?.duration_minutes ?? 0,
     category_id: initial?.category_id ?? "",
-    professional_id: initial?.professional_id ?? "",
+    professional_ref_id: initial?.professional_ref_id ?? "",
     active: initial?.active ?? true,
     notes: initial?.notes ?? "",
   });
@@ -252,7 +252,7 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
       price: Number(form.price),
       duration_minutes: Number(form.duration_minutes),
       category_id: form.category_id || null,
-      professional_id: form.professional_id || null,
+      professional_ref_id: form.professional_ref_id || null,
       active: form.active,
       notes: form.notes || null,
     };
@@ -302,10 +302,11 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
       </div>
       <div className="space-y-1.5">
         <Label>Profissional responsável</Label>
-        <Select value={form.professional_id || undefined} onValueChange={(v) => setForm({ ...form, professional_id: v })}>
+        <Select value={form.professional_ref_id || undefined} onValueChange={(v) => setForm({ ...form, professional_ref_id: v })}>
           <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
-          <SelectContent>{professionals.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.full_name || p.email}</SelectItem>)}</SelectContent>
+          <SelectContent>{professionals.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}{p.specialty ? ` — ${p.specialty}` : ""}</SelectItem>)}</SelectContent>
         </Select>
+        <p className="text-[11px] text-text-muted">Cadastre profissionais pelo botão "Profissionais" no topo.</p>
       </div>
       <div className="col-span-2 space-y-1.5">
         <Label>Status</Label>
