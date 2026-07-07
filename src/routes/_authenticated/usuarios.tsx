@@ -5,10 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, ShieldOff, Trash2 } from "lucide-react";
+import { ShieldCheck, ShieldOff, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { deleteUserAccount } from "@/lib/admin-users.functions";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { createUserAccount, deleteUserAccount } from "@/lib/admin-users.functions";
 import {
   AlertDialog,
   AlertDialogAction,
