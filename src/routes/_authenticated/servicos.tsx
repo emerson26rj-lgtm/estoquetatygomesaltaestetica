@@ -172,7 +172,7 @@ function ServicosPage() {
                     {s.description && <p className="text-[11px] text-text-muted line-clamp-1">{s.description}</p>}
                   </td>
                   <td className="p-3 text-text-muted">{s.service_categories?.name || "—"}</td>
-                  <td className="p-3 text-text-muted">{profName(s.professional_id)}</td>
+                  <td className="p-3 text-text-muted">{s.professionals?.name || "—"}</td>
                   <td className="p-3 text-right text-text-muted">{s.duration_minutes ? `${s.duration_minutes} min` : "—"}</td>
                   <td className="p-3 text-right font-medium">{currency(Number(s.price))}</td>
                   <td className="p-3 text-text-muted">{s.service_products?.length ?? 0}</td>
