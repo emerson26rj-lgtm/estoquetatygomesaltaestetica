@@ -309,6 +309,42 @@ export type Database = {
           },
         ]
       }
+      professionals: {
+        Row: {
+          active: boolean
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          specialty: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -399,6 +435,7 @@ export type Database = {
           notes: string | null
           price: number
           professional_id: string | null
+          professional_ref_id: string | null
           updated_at: string
         }
         Insert: {
@@ -412,6 +449,7 @@ export type Database = {
           notes?: string | null
           price?: number
           professional_id?: string | null
+          professional_ref_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -425,6 +463,7 @@ export type Database = {
           notes?: string | null
           price?: number
           professional_id?: string | null
+          professional_ref_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -433,6 +472,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_professional_ref_id_fkey"
+            columns: ["professional_ref_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
         ]

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, Trash2, Pencil, Settings2, X } from "lucide-react";
+import { Plus, Search, Trash2, Pencil, Settings2, X, Users } from "lucide-react";
 import { currency, logAudit } from "@/lib/stock";
 
 export const Route = createFileRoute("/_authenticated/servicos")({
@@ -25,13 +25,14 @@ function ServicosPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [catOpen, setCatOpen] = useState(false);
+  const [profOpen, setProfOpen] = useState(false);
 
   const { data: services = [] } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("services")
-        .select("*, service_categories(name), service_products(id, quantity, products(id, name, unit))")
+        .select("*, service_categories(name), professionals(id, name), service_products(id, quantity, products(id, name, unit))")
         .order("name");
       if (error) throw error;
       return data ?? [];
@@ -42,8 +43,8 @@ function ServicosPage() {
     queryFn: async () => (await supabase.from("service_categories").select("*").order("name")).data ?? [],
   });
   const { data: professionals = [] } = useQuery({
-    queryKey: ["all-profiles-services"],
-    queryFn: async () => (await supabase.from("profiles").select("id, full_name, email").order("full_name")).data ?? [],
+    queryKey: ["professionals"],
+    queryFn: async () => (await supabase.from("professionals").select("*").order("name")).data ?? [],
   });
   const { data: products = [] } = useQuery({
     queryKey: ["products-for-services"],
@@ -73,10 +74,13 @@ function ServicosPage() {
     qc.invalidateQueries({ queryKey: ["services"] });
   }
 
-  function profName(id: string | null) {
-    if (!id) return "—";
-    const p = professionals.find((x: any) => x.id === id);
-    return p?.full_name || p?.email || "—";
+  async function delProf(p: any) {
+    if (!confirm(`Excluir profissional "${p.name}"?`)) return;
+    const { error } = await supabase.from("professionals").delete().eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Profissional excluído");
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+    qc.invalidateQueries({ queryKey: ["services"] });
   }
 
   return (
@@ -87,6 +91,15 @@ function ServicosPage() {
           <h1 className="text-2xl font-semibold tracking-tight mt-1">Serviços</h1>
         </div>
         <div className="flex gap-2">
+          <Dialog open={profOpen} onOpenChange={setProfOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline"><Users className="size-4 mr-1" /> Profissionais</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>Gerenciar profissionais</DialogTitle></DialogHeader>
+              <ProfessionalManager professionals={professionals as any} onDel={delProf} />
+            </DialogContent>
+          </Dialog>
           <Dialog open={catOpen} onOpenChange={setCatOpen}>
             <DialogTrigger asChild>
               <Button variant="outline"><Settings2 className="size-4 mr-1" /> Categorias</Button>
@@ -159,7 +172,7 @@ function ServicosPage() {
                     {s.description && <p className="text-[11px] text-text-muted line-clamp-1">{s.description}</p>}
                   </td>
                   <td className="p-3 text-text-muted">{s.service_categories?.name || "—"}</td>
-                  <td className="p-3 text-text-muted">{profName(s.professional_id)}</td>
+                  <td className="p-3 text-text-muted">{s.professionals?.name || "—"}</td>
                   <td className="p-3 text-right text-text-muted">{s.duration_minutes ? `${s.duration_minutes} min` : "—"}</td>
                   <td className="p-3 text-right font-medium">{currency(Number(s.price))}</td>
                   <td className="p-3 text-text-muted">{s.service_products?.length ?? 0}</td>
@@ -196,7 +209,7 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
     price: initial?.price ?? 0,
     duration_minutes: initial?.duration_minutes ?? 0,
     category_id: initial?.category_id ?? "",
-    professional_id: initial?.professional_id ?? "",
+    professional_ref_id: initial?.professional_ref_id ?? "",
     active: initial?.active ?? true,
     notes: initial?.notes ?? "",
   });
@@ -239,7 +252,7 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
       price: Number(form.price),
       duration_minutes: Number(form.duration_minutes),
       category_id: form.category_id || null,
-      professional_id: form.professional_id || null,
+      professional_ref_id: form.professional_ref_id || null,
       active: form.active,
       notes: form.notes || null,
     };
@@ -289,10 +302,11 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
       </div>
       <div className="space-y-1.5">
         <Label>Profissional responsável</Label>
-        <Select value={form.professional_id || undefined} onValueChange={(v) => setForm({ ...form, professional_id: v })}>
+        <Select value={form.professional_ref_id || undefined} onValueChange={(v) => setForm({ ...form, professional_ref_id: v })}>
           <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
-          <SelectContent>{professionals.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.full_name || p.email}</SelectItem>)}</SelectContent>
+          <SelectContent>{professionals.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}{p.specialty ? ` — ${p.specialty}` : ""}</SelectItem>)}</SelectContent>
         </Select>
+        <p className="text-[11px] text-text-muted">Cadastre profissionais pelo botão "Profissionais" no topo.</p>
       </div>
       <div className="col-span-2 space-y-1.5">
         <Label>Status</Label>
@@ -356,5 +370,73 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
         </Button>
       </div>
     </form>
+  );
+}
+
+function ProfessionalManager({ professionals, onDel }: { professionals: any[]; onDel: (p: any) => void }) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true });
+  const [saving, setSaving] = useState(false);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) return toast.error("Nome obrigatório");
+    setSaving(true);
+    const { error } = await supabase.from("professionals").insert({
+      name: form.name,
+      specialty: form.specialty || null,
+      phone: form.phone || null,
+      email: form.email || null,
+      active: form.active,
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Profissional cadastrado");
+    setForm({ name: "", specialty: "", phone: "", email: "", active: true });
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
+  async function toggleActive(p: any) {
+    const { error } = await supabase.from("professionals").update({ active: !p.active }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
+  return (
+    <div className="space-y-4">
+      <form onSubmit={create} className="grid grid-cols-2 gap-2 p-3 rounded-md border border-border/60">
+        <div className="col-span-2 space-y-1"><Label className="text-xs">Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={150} required /></div>
+        <div className="space-y-1"><Label className="text-xs">Especialidade</Label><Input value={form.specialty} onChange={(e) => setForm({ ...form, specialty: e.target.value })} maxLength={100} /></div>
+        <div className="space-y-1"><Label className="text-xs">Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} maxLength={30} /></div>
+        <div className="col-span-2 space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="col-span-2 flex justify-end">
+          <Button type="submit" size="sm" disabled={saving} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
+            <Plus className="size-4 mr-1" /> {saving ? "Salvando..." : "Cadastrar"}
+          </Button>
+        </div>
+      </form>
+      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+        {professionals.length === 0 && <p className="text-sm text-text-muted text-center py-4">Nenhum profissional cadastrado.</p>}
+        {professionals.map((p: any) => (
+          <div key={p.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-page-bg/60 border border-border/40">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium truncate">{p.name}</p>
+              <p className="text-[11px] text-text-muted truncate">
+                {[p.specialty, p.phone, p.email].filter(Boolean).join(" · ") || "—"}
+              </p>
+            </div>
+            <Badge variant="secondary" className={p.active ? "bg-emerald-500/15 text-emerald-700" : ""}>
+              {p.active ? "Ativo" : "Inativo"}
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={() => toggleActive(p)} className="h-7 text-xs">
+              {p.active ? "Desativar" : "Ativar"}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onDel(p)} className="text-danger hover:text-danger h-7 w-7 p-0">
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
