@@ -7,7 +7,7 @@ import {
   SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut,
+  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut, Users, UserCog, FileHeart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -24,19 +24,23 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 const items = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/produtos", label: "Produtos", icon: Package },
-  { to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight },
-  { to: "/fornecedores", label: "Fornecedores", icon: Truck },
-  { to: "/relatorios", label: "Relatórios", icon: FileText },
-  { to: "/ia", label: "Assistente IA", icon: Sparkles },
-  { to: "/auditoria", label: "Auditoria", icon: ShieldCheck },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
+  { to: "/clientes", label: "Clientes", icon: Users, adminOnly: false },
+  { to: "/anamnese", label: "Anamnese", icon: FileHeart, adminOnly: false },
+  { to: "/produtos", label: "Produtos", icon: Package, adminOnly: false },
+  { to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight, adminOnly: false },
+  { to: "/fornecedores", label: "Fornecedores", icon: Truck, adminOnly: false },
+  { to: "/relatorios", label: "Relatórios", icon: FileText, adminOnly: false },
+  { to: "/ia", label: "Assistente IA", icon: Sparkles, adminOnly: false },
+  { to: "/usuarios", label: "Usuários", icon: UserCog, adminOnly: true },
+  { to: "/auditoria", label: "Auditoria", icon: ShieldCheck, adminOnly: true },
 ] as const;
 
-function AppSidebar() {
+function AppSidebar({ isAdmin }: { isAdmin: boolean }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const visibleItems = items.filter((i) => !i.adminOnly || isAdmin);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/60">
@@ -58,7 +62,7 @@ function AppSidebar() {
           {!collapsed && <SidebarGroupLabel>Módulos</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => {
+              {visibleItems.map((item) => {
                 const active = pathname.startsWith(item.to);
                 return (
                   <SidebarMenuItem key={item.to}>
@@ -85,13 +89,16 @@ function AuthLayout() {
   const qc = useQueryClient();
   const [email, setEmail] = useState<string>("");
   const [role, setRole] = useState<string>("usuário");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
       setEmail(data.user.email ?? "");
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id);
-      if (roles?.some((r) => r.role === "admin")) setRole("administrador");
+      const admin = !!roles?.some((r) => r.role === "admin");
+      setIsAdmin(admin);
+      if (admin) setRole("administrador");
     });
   }, []);
 
@@ -106,7 +113,7 @@ function AuthLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-page-bg">
-        <AppSidebar />
+        <AppSidebar isAdmin={isAdmin} />
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-10 h-14 flex items-center justify-between gap-3 border-b border-border/60 bg-page-bg/80 backdrop-blur-md px-3 sm:px-6">
             <div className="flex items-center gap-2 min-w-0">

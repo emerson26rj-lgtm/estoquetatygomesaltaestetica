@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      anamneses: {
+        Row: {
+          alergias: string | null
+          assinatura_cliente: string | null
+          cirurgias_previas: string | null
+          cliente_id: string
+          contraindicacoes: string | null
+          created_at: string
+          created_by: string | null
+          data_atendimento: string
+          diabetes: boolean | null
+          fumante: boolean | null
+          gestante: boolean | null
+          hipertensao: boolean | null
+          historico_saude: string | null
+          id: string
+          medicamentos: string | null
+          observacoes: string | null
+          procedimento_realizado: string | null
+          procedimentos_esteticos_previos: string | null
+          produtos_utilizados: string | null
+          queixa_principal: string | null
+          updated_at: string
+        }
+        Insert: {
+          alergias?: string | null
+          assinatura_cliente?: string | null
+          cirurgias_previas?: string | null
+          cliente_id: string
+          contraindicacoes?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_atendimento?: string
+          diabetes?: boolean | null
+          fumante?: boolean | null
+          gestante?: boolean | null
+          hipertensao?: boolean | null
+          historico_saude?: string | null
+          id?: string
+          medicamentos?: string | null
+          observacoes?: string | null
+          procedimento_realizado?: string | null
+          procedimentos_esteticos_previos?: string | null
+          produtos_utilizados?: string | null
+          queixa_principal?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alergias?: string | null
+          assinatura_cliente?: string | null
+          cirurgias_previas?: string | null
+          cliente_id?: string
+          contraindicacoes?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_atendimento?: string
+          diabetes?: boolean | null
+          fumante?: boolean | null
+          gestante?: boolean | null
+          hipertensao?: boolean | null
+          historico_saude?: string | null
+          id?: string
+          medicamentos?: string | null
+          observacoes?: string | null
+          procedimento_realizado?: string | null
+          procedimentos_esteticos_previos?: string | null
+          produtos_utilizados?: string | null
+          queixa_principal?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anamneses_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -59,6 +139,60 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      clientes: {
+        Row: {
+          cidade: string | null
+          cpf: string | null
+          created_at: string
+          created_by: string | null
+          data_nascimento: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          profissao: string | null
+          rg: string | null
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          profissao?: string | null
+          rg?: string | null
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_nascimento?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          profissao?: string | null
+          rg?: string | null
+          telefone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
