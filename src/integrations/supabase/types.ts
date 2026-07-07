@@ -17,6 +17,7 @@ export type Database = {
       anamneses: {
         Row: {
           alergias: string | null
+          altura: number | null
           assinatura_cliente: string | null
           cirurgias_previas: string | null
           cliente_id: string
@@ -31,7 +32,9 @@ export type Database = {
           historico_saude: string | null
           id: string
           medicamentos: string | null
+          medidas: string | null
           observacoes: string | null
+          peso: number | null
           procedimento_realizado: string | null
           procedimentos_esteticos_previos: string | null
           produtos_utilizados: string | null
@@ -40,6 +43,7 @@ export type Database = {
         }
         Insert: {
           alergias?: string | null
+          altura?: number | null
           assinatura_cliente?: string | null
           cirurgias_previas?: string | null
           cliente_id: string
@@ -54,7 +58,9 @@ export type Database = {
           historico_saude?: string | null
           id?: string
           medicamentos?: string | null
+          medidas?: string | null
           observacoes?: string | null
+          peso?: number | null
           procedimento_realizado?: string | null
           procedimentos_esteticos_previos?: string | null
           produtos_utilizados?: string | null
@@ -63,6 +69,7 @@ export type Database = {
         }
         Update: {
           alergias?: string | null
+          altura?: number | null
           assinatura_cliente?: string | null
           cirurgias_previas?: string | null
           cliente_id?: string
@@ -77,7 +84,9 @@ export type Database = {
           historico_saude?: string | null
           id?: string
           medicamentos?: string | null
+          medidas?: string | null
           observacoes?: string | null
+          peso?: number | null
           procedimento_realizado?: string | null
           procedimentos_esteticos_previos?: string | null
           produtos_utilizados?: string | null
