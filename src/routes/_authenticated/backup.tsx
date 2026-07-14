@@ -292,7 +292,7 @@ function BackupPage() {
     doc.setFontSize(9);
     doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")}`, 14, 27);
 
-    async function section(title: string, cols: string[], rowsPromise: Promise<any[][]>) {
+    async function section(title: string, cols: string[], rowsPromise: PromiseLike<any[][]>) {
       const rows = await rowsPromise;
       doc.addPage();
       doc.setFontSize(14);
