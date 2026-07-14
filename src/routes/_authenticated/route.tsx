@@ -7,7 +7,7 @@ import {
   SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut, Users, UserCog, FileHeart, Scissors, CalendarDays,
+  LayoutDashboard, Package, ArrowLeftRight, Truck, FileText, ShieldCheck, Sparkles, LogOut, Users, UserCog, FileHeart, Scissors, CalendarDays, DatabaseBackup,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -35,6 +35,7 @@ const items = [
   { to: "/relatorios", label: "Relatórios", icon: FileText, adminOnly: false },
   { to: "/ia", label: "Assistente IA", icon: Sparkles, adminOnly: false },
   { to: "/usuarios", label: "Usuários", icon: UserCog, adminOnly: true },
+  { to: "/backup", label: "Backup PDF", icon: DatabaseBackup, adminOnly: true },
   { to: "/auditoria", label: "Auditoria", icon: ShieldCheck, adminOnly: true },
 ] as const;
 
