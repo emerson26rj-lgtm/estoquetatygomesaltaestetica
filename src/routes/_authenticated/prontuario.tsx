@@ -32,7 +32,7 @@ function ProntuarioPage() {
     queryKey: ["client_photos", clienteId],
     queryFn: async () => {
       if (!clienteId) return [];
-      const { data } = await supabase.from("client_photos").select("*").eq("cliente_id", clienteId).order("taken_at", { ascending: false });
+      const { data } = await (supabase as any).from("client_photos").select("*").eq("cliente_id", clienteId).order("taken_at", { ascending: false });
       const withUrls = await Promise.all((data ?? []).map(async (p: any) => {
         const { data: signed } = await supabase.storage.from("prontuario").createSignedUrl(p.storage_path, 3600);
         return { ...p, url: signed?.signedUrl };
@@ -54,7 +54,7 @@ function ProntuarioPage() {
         const path = `${clienteId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: upErr } = await supabase.storage.from("prontuario").upload(path, file, { contentType: file.type });
         if (upErr) throw upErr;
-        const { error: insErr } = await supabase.from("client_photos").insert({
+        const { error: insErr } = await (supabase as any).from("client_photos").insert({
           cliente_id: clienteId,
           storage_path: path,
           phase,
@@ -78,7 +78,7 @@ function ProntuarioPage() {
   async function remove(p: any) {
     if (!confirm("Excluir esta foto?")) return;
     await supabase.storage.from("prontuario").remove([p.storage_path]);
-    await supabase.from("client_photos").delete().eq("id", p.id);
+    await (supabase as any).from("client_photos").delete().eq("id", p.id);
     qc.invalidateQueries({ queryKey: ["client_photos", clienteId] });
   }
 

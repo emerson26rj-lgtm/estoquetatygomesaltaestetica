@@ -42,11 +42,11 @@ function FinanceiroPage() {
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["financial_accounts"],
-    queryFn: async () => (await supabase.from("financial_accounts").select("*").order("due_date", { ascending: false })).data ?? [],
+    queryFn: async () => (await (supabase as any).from("financial_accounts").select("*").order("due_date", { ascending: false })).data ?? [],
   });
   const { data: cats = [] } = useQuery({
     queryKey: ["financial_categories"],
-    queryFn: async () => (await supabase.from("financial_categories").select("*").order("name")).data ?? [],
+    queryFn: async () => (await (supabase as any).from("financial_categories").select("*").order("name")).data ?? [],
   });
   const { data: clientes = [] } = useQuery({
     queryKey: ["clientes"],
@@ -92,11 +92,11 @@ function FinanceiroPage() {
       paid_at: editing.paid_at || null,
     };
     if (editing.id) {
-      const { error } = await supabase.from("financial_accounts").update(payload).eq("id", editing.id);
+      const { error } = await (supabase as any).from("financial_accounts").update(payload).eq("id", editing.id);
       if (error) return toast.error(error.message);
     } else {
       const { data: u } = await supabase.auth.getUser();
-      const { error } = await supabase.from("financial_accounts").insert({ ...payload, created_by: u.user?.id });
+      const { error } = await (supabase as any).from("financial_accounts").insert({ ...payload, created_by: u.user?.id });
       if (error) return toast.error(error.message);
     }
     toast.success("Salvo");
@@ -106,7 +106,7 @@ function FinanceiroPage() {
   }
 
   async function marcarPago(a: any) {
-    const { error } = await supabase.from("financial_accounts").update({ status: "paid", paid_at: new Date().toISOString().slice(0, 10) }).eq("id", a.id);
+    const { error } = await (supabase as any).from("financial_accounts").update({ status: "paid", paid_at: new Date().toISOString().slice(0, 10) }).eq("id", a.id);
     if (error) return toast.error(error.message);
     toast.success("Baixa confirmada");
     qc.invalidateQueries({ queryKey: ["financial_accounts"] });
@@ -114,7 +114,7 @@ function FinanceiroPage() {
 
   async function remove(id: string) {
     if (!confirm("Excluir este lançamento?")) return;
-    const { error } = await supabase.from("financial_accounts").delete().eq("id", id);
+    const { error } = await (supabase as any).from("financial_accounts").delete().eq("id", id);
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["financial_accounts"] });
   }
