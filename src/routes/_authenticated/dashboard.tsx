@@ -34,6 +34,11 @@ function Dashboard() {
     },
   });
 
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["financial_accounts", "dashboard"],
+    queryFn: async () => (await (supabase as any).from("financial_accounts").select("type,amount,status,due_date,paid_at")).data ?? [],
+  });
+
   const total = products.length;
   const value = products.reduce((s, p: any) => s + Number(p.quantity) * Number(p.cost_value), 0);
   const low = products.filter((p: any) => statusOf(p.quantity, p.min_stock, p.expiry_date) === "low").length;
@@ -41,6 +46,15 @@ function Dashboard() {
     const s = statusOf(p.quantity, p.min_stock, p.expiry_date);
     return s === "expiring" || s === "expired";
   }).length;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const monthKey = new Date().toISOString().slice(0, 7);
+  const receivableOpen = accounts.filter((a: any) => a.type === "receivable" && a.status !== "paid").reduce((s: number, a: any) => s + Number(a.amount), 0);
+  const payableOpen = accounts.filter((a: any) => a.type === "payable" && a.status !== "paid").reduce((s: number, a: any) => s + Number(a.amount), 0);
+  const overdueCount = accounts.filter((a: any) => a.status !== "paid" && a.due_date && a.due_date < today).length;
+  const income = accounts.filter((a: any) => a.status === "paid" && a.type === "receivable" && a.paid_at?.slice(0, 7) === monthKey).reduce((s: number, a: any) => s + Number(a.amount), 0);
+  const expense = accounts.filter((a: any) => a.status === "paid" && a.type === "payable" && a.paid_at?.slice(0, 7) === monthKey).reduce((s: number, a: any) => s + Number(a.amount), 0);
+  const netMonth = income - expense;
 
   const chart = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
