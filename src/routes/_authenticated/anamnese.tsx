@@ -77,6 +77,9 @@ function AnamnesePage() {
     e.preventDefault();
     if (!editing) return;
     const payload: any = { ...editing };
+    if (payload.assinatura_cliente && !payload.assinatura_data) {
+      payload.assinatura_data = new Date().toISOString();
+    }
     if (editing.id) {
       const { error } = await supabase.from("anamneses").update(payload).eq("id", editing.id);
       if (error) return toast.error(error.message);
