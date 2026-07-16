@@ -19,6 +19,7 @@ export type Database = {
           alergias: string | null
           altura: number | null
           assinatura_cliente: string | null
+          assinatura_data: string | null
           cirurgias_previas: string | null
           cliente_id: string
           contraindicacoes: string | null
@@ -45,6 +46,7 @@ export type Database = {
           alergias?: string | null
           altura?: number | null
           assinatura_cliente?: string | null
+          assinatura_data?: string | null
           cirurgias_previas?: string | null
           cliente_id: string
           contraindicacoes?: string | null
@@ -71,6 +73,7 @@ export type Database = {
           alergias?: string | null
           altura?: number | null
           assinatura_cliente?: string | null
+          assinatura_data?: string | null
           cirurgias_previas?: string | null
           cliente_id?: string
           contraindicacoes?: string | null
@@ -229,6 +232,50 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      client_photos: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          photo_type: string
+          session_label: string | null
+          storage_path: string
+          taken_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          photo_type?: string
+          session_label?: string | null
+          storage_path: string
+          taken_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          photo_type?: string
+          session_label?: string | null
+          storage_path?: string
+          taken_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_photos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clientes: {
         Row: {
