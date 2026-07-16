@@ -85,6 +85,13 @@ function Dashboard() {
         <Kpi label="Vencendo/Vencidos" value={String(expiring)} icon={TrendingUp} accent={expiring > 0 ? "text-warning" : ""} />
       </section>
 
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Kpi label="A Receber (aberto)" value={currency(receivableOpen)} icon={ArrowDownCircle} accent="text-emerald-700" />
+        <Kpi label="A Pagar (aberto)" value={currency(payableOpen)} icon={ArrowUpCircle} accent="text-rose-700" />
+        <Kpi label="Contas em atraso" value={String(overdueCount)} icon={AlertTriangle} accent={overdueCount > 0 ? "text-danger" : ""} />
+        <Kpi label="Resultado do mês" value={currency(netMonth)} icon={Wallet} accent={netMonth >= 0 ? "text-emerald-700" : "text-rose-700"} />
+      </section>
+
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2 p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
           <div className="flex items-center justify-between mb-4">
