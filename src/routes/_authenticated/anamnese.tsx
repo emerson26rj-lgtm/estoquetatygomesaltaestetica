@@ -41,6 +41,7 @@ type Anamnese = {
   produtos_utilizados?: string;
   observacoes?: string;
   assinatura_cliente?: string;
+  assinatura_data?: string | null;
   peso?: number | string;
   altura?: number | string;
   medidas?: string;
