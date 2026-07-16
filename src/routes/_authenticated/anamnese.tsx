@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { z } from "zod";
+import { SignaturePad } from "@/components/signature-pad";
 
 const searchSchema = z.object({ cliente: z.string().optional() });
 
@@ -40,6 +41,7 @@ type Anamnese = {
   produtos_utilizados?: string;
   observacoes?: string;
   assinatura_cliente?: string;
+  assinatura_data?: string | null;
   peso?: number | string;
   altura?: number | string;
   medidas?: string;
@@ -75,6 +77,9 @@ function AnamnesePage() {
     e.preventDefault();
     if (!editing) return;
     const payload: any = { ...editing };
+    if (payload.assinatura_cliente && !payload.assinatura_data) {
+      payload.assinatura_data = new Date().toISOString();
+    }
     if (editing.id) {
       const { error } = await supabase.from("anamneses").update(payload).eq("id", editing.id);
       if (error) return toast.error(error.message);
@@ -99,14 +104,25 @@ function AnamnesePage() {
 
   if (editing) {
     return (
-      <div className="space-y-6 max-w-3xl">
-        <header className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setEditing(null)}><ArrowLeft className="size-4" /></Button>
-          <div>
-            <p className="text-[11px] uppercase tracking-wider text-text-muted">Anamnese</p>
-            <h1 className="text-2xl font-semibold tracking-tight">{editing.id ? "Editar ficha" : "Nova ficha"}</h1>
+      <div className="space-y-6 max-w-3xl print:max-w-none">
+        <header className="flex items-center justify-between gap-3 print:hidden">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setEditing(null)}><ArrowLeft className="size-4" /></Button>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-text-muted">Anamnese</p>
+              <h1 className="text-2xl font-semibold tracking-tight">{editing.id ? "Editar ficha" : "Nova ficha"}</h1>
+            </div>
           </div>
+          {editing.id && (
+            <Button type="button" variant="outline" onClick={() => window.print()}>
+              <Printer className="size-4 mr-1.5" /> Imprimir
+            </Button>
+          )}
         </header>
+        <div className="hidden print:block mb-4">
+          <h1 className="text-xl font-semibold">Taty Gomes Alta Estética — Ficha de Anamnese</h1>
+          <p className="text-sm text-text-muted">Cliente: {clientes.find((c: any) => c.id === editing.cliente_id)?.nome ?? ""} • Data: {editing.data_atendimento ? new Date(editing.data_atendimento).toLocaleDateString("pt-BR") : ""}</p>
+        </div>
 
         <form onSubmit={save} className="space-y-6">
           <Card className="p-5 space-y-4 bg-surface ring-1 ring-black/5 border-0 shadow-none">
@@ -171,10 +187,14 @@ function AnamnesePage() {
             <div className="space-y-1.5"><Label>Procedimento realizado hoje</Label><Textarea rows={2} value={editing.procedimento_realizado ?? ""} onChange={(e) => setEditing({ ...editing, procedimento_realizado: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Produtos utilizados</Label><Textarea rows={2} value={editing.produtos_utilizados ?? ""} onChange={(e) => setEditing({ ...editing, produtos_utilizados: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Observações</Label><Textarea rows={2} value={editing.observacoes ?? ""} onChange={(e) => setEditing({ ...editing, observacoes: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label>Assinatura do cliente (nome digitado)</Label><Input value={editing.assinatura_cliente ?? ""} onChange={(e) => setEditing({ ...editing, assinatura_cliente: e.target.value })} /></div>
+            <div className="space-y-1.5">
+              <Label>Assinatura do cliente</Label>
+              <SignaturePad value={editing.assinatura_cliente} onChange={(v) => setEditing({ ...editing, assinatura_cliente: v ?? undefined, assinatura_data: v ? new Date().toISOString() : null })} />
+              {editing.assinatura_data && <p className="text-[11px] text-text-muted">Assinado em {new Date(editing.assinatura_data).toLocaleString("pt-BR")}</p>}
+            </div>
           </Card>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 print:hidden">
             <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
             <Button type="submit" className="bg-brand-primary hover:bg-brand-primary/90 text-white">Salvar ficha</Button>
           </div>

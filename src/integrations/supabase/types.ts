@@ -19,6 +19,7 @@ export type Database = {
           alergias: string | null
           altura: number | null
           assinatura_cliente: string | null
+          assinatura_data: string | null
           cirurgias_previas: string | null
           cliente_id: string
           contraindicacoes: string | null
@@ -45,6 +46,7 @@ export type Database = {
           alergias?: string | null
           altura?: number | null
           assinatura_cliente?: string | null
+          assinatura_data?: string | null
           cirurgias_previas?: string | null
           cliente_id: string
           contraindicacoes?: string | null
@@ -71,6 +73,7 @@ export type Database = {
           alergias?: string | null
           altura?: number | null
           assinatura_cliente?: string | null
+          assinatura_data?: string | null
           cirurgias_previas?: string | null
           cliente_id?: string
           contraindicacoes?: string | null
@@ -230,6 +233,50 @@ export type Database = {
         }
         Relationships: []
       }
+      client_photos: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          photo_type: string
+          session_label: string | null
+          storage_path: string
+          taken_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          photo_type?: string
+          session_label?: string | null
+          storage_path: string
+          taken_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          photo_type?: string
+          session_label?: string | null
+          storage_path?: string
+          taken_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_photos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           cidade: string | null
@@ -281,6 +328,219 @@ export type Database = {
           rg?: string | null
           telefone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      commissions: {
+        Row: {
+          appointment_id: string | null
+          cliente_id: string | null
+          commission_amount: number
+          commission_percent: number
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          paid: boolean
+          paid_date: string | null
+          professional_id: string
+          reference_date: string
+          service_amount: number
+          service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          cliente_id?: string | null
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          professional_id: string
+          reference_date?: string
+          service_amount?: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          cliente_id?: string | null
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          professional_id?: string
+          reference_date?: string
+          service_amount?: number
+          service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_accounts: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          category_id: string | null
+          cliente_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          due_date: string
+          id: string
+          notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+          professional_id: string | null
+          service_id: string | null
+          status: string
+          supplier_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          category_id?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          due_date: string
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          professional_id?: string | null
+          service_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          category_id?: string | null
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          professional_id?: string | null
+          service_id?: string | null
+          status?: string
+          supplier_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_accounts_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_accounts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_accounts_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_accounts_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_accounts_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_accounts_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          type: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          type: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string
         }
         Relationships: []
       }
