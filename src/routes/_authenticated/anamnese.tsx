@@ -187,10 +187,14 @@ function AnamnesePage() {
             <div className="space-y-1.5"><Label>Procedimento realizado hoje</Label><Textarea rows={2} value={editing.procedimento_realizado ?? ""} onChange={(e) => setEditing({ ...editing, procedimento_realizado: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Produtos utilizados</Label><Textarea rows={2} value={editing.produtos_utilizados ?? ""} onChange={(e) => setEditing({ ...editing, produtos_utilizados: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Observações</Label><Textarea rows={2} value={editing.observacoes ?? ""} onChange={(e) => setEditing({ ...editing, observacoes: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label>Assinatura do cliente (nome digitado)</Label><Input value={editing.assinatura_cliente ?? ""} onChange={(e) => setEditing({ ...editing, assinatura_cliente: e.target.value })} /></div>
+            <div className="space-y-1.5">
+              <Label>Assinatura do cliente</Label>
+              <SignaturePad value={editing.assinatura_cliente} onChange={(v) => setEditing({ ...editing, assinatura_cliente: v ?? undefined, assinatura_data: v ? new Date().toISOString() : null })} />
+              {editing.assinatura_data && <p className="text-[11px] text-text-muted">Assinado em {new Date(editing.assinatura_data).toLocaleString("pt-BR")}</p>}
+            </div>
           </Card>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 print:hidden">
             <Button type="button" variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
             <Button type="submit" className="bg-brand-primary hover:bg-brand-primary/90 text-white">Salvar ficha</Button>
           </div>
