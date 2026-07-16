@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { statusOf, statusLabel, currency } from "@/lib/stock";
-import { AlertTriangle, TrendingUp, Package, DollarSign } from "lucide-react";
+import { AlertTriangle, TrendingUp, Package, DollarSign, Wallet, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
