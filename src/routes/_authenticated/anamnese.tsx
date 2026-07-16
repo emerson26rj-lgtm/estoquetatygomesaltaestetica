@@ -104,14 +104,25 @@ function AnamnesePage() {
 
   if (editing) {
     return (
-      <div className="space-y-6 max-w-3xl">
-        <header className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => setEditing(null)}><ArrowLeft className="size-4" /></Button>
-          <div>
-            <p className="text-[11px] uppercase tracking-wider text-text-muted">Anamnese</p>
-            <h1 className="text-2xl font-semibold tracking-tight">{editing.id ? "Editar ficha" : "Nova ficha"}</h1>
+      <div className="space-y-6 max-w-3xl print:max-w-none">
+        <header className="flex items-center justify-between gap-3 print:hidden">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setEditing(null)}><ArrowLeft className="size-4" /></Button>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-text-muted">Anamnese</p>
+              <h1 className="text-2xl font-semibold tracking-tight">{editing.id ? "Editar ficha" : "Nova ficha"}</h1>
+            </div>
           </div>
+          {editing.id && (
+            <Button type="button" variant="outline" onClick={() => window.print()}>
+              <Printer className="size-4 mr-1.5" /> Imprimir
+            </Button>
+          )}
         </header>
+        <div className="hidden print:block mb-4">
+          <h1 className="text-xl font-semibold">Taty Gomes Alta Estética — Ficha de Anamnese</h1>
+          <p className="text-sm text-text-muted">Cliente: {clientes.find((c: any) => c.id === editing.cliente_id)?.nome ?? ""} • Data: {editing.data_atendimento ? new Date(editing.data_atendimento).toLocaleDateString("pt-BR") : ""}</p>
+        </div>
 
         <form onSubmit={save} className="space-y-6">
           <Card className="p-5 space-y-4 bg-surface ring-1 ring-black/5 border-0 shadow-none">
