@@ -140,7 +140,15 @@ function AuthLayout() {
           <main className="flex-1 p-4 sm:p-6 max-w-[1400px] w-full mx-auto">
             <Outlet />
           </main>
+          <Link
+            to="/ia"
+            aria-label="Abrir Assistente IA"
+            className="fixed bottom-5 right-5 z-40 size-14 rounded-full bg-brand-primary text-white shadow-lg ring-1 ring-brand-primary/40 flex items-center justify-center hover:scale-105 transition-transform"
+          >
+            <Sparkles className="size-6" />
+          </Link>
         </div>
+
       </div>
     </SidebarProvider>
   );
