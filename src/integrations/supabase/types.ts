@@ -782,6 +782,111 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_items: {
+        Row: {
+          created_at: string
+          id: string
+          quantity: number
+          sale_id: string
+          service_id: string | null
+          service_name: string
+          subtotal: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          sale_id: string
+          service_id?: string | null
+          service_name: string
+          subtotal?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          sale_id?: string
+          service_id?: string | null
+          service_name?: string
+          subtotal?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          cliente_id: string | null
+          created_at: string
+          created_by: string | null
+          financial_account_id: string | null
+          id: string
+          notes: string | null
+          payment_method: string
+          professional_id: string | null
+          sold_at: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          financial_account_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method: string
+          professional_id?: string | null
+          sold_at?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          financial_account_id?: string | null
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          professional_id?: string | null
+          sold_at?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_categories: {
         Row: {
           created_at: string
