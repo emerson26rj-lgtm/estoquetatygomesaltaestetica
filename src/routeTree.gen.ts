@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedServicosRouteImport } from './routes/_authenticated/servicos'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
@@ -49,6 +50,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedVendasRoute = AuthenticatedVendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/servicos': typeof AuthenticatedServicosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
   '/api/public/google-oauth-callback': typeof ApiPublicGoogleOauthCallbackRoute
 }
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/servicos': typeof AuthenticatedServicosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
   '/api/public/google-oauth-callback': typeof ApiPublicGoogleOauthCallbackRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/servicos': typeof AuthenticatedServicosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
   '/api/public/google-oauth-callback': typeof ApiPublicGoogleOauthCallbackRoute
 }
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/servicos'
     | '/usuarios'
+    | '/vendas'
     | '/api/chat'
     | '/api/public/google-oauth-callback'
   fileRoutesByTo: FileRoutesByTo
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/servicos'
     | '/usuarios'
+    | '/vendas'
     | '/api/chat'
     | '/api/public/google-oauth-callback'
   id:
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/servicos'
     | '/_authenticated/usuarios'
+    | '/_authenticated/vendas'
     | '/api/chat'
     | '/api/public/google-oauth-callback'
   fileRoutesById: FileRoutesById
@@ -314,6 +326,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/vendas': {
+      id: '/_authenticated/vendas'
+      path: '/vendas'
+      fullPath: '/vendas'
+      preLoaderRoute: typeof AuthenticatedVendasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/usuarios': {
       id: '/_authenticated/usuarios'
@@ -454,6 +473,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedServicosRoute: typeof AuthenticatedServicosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -473,6 +493,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedServicosRoute: AuthenticatedServicosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedVendasRoute: AuthenticatedVendasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -488,3 +509,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
