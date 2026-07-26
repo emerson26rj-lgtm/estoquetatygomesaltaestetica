@@ -140,6 +140,9 @@ function ClientesPage() {
                   <td className="p-3 text-text-muted">{c.cidade ?? "—"}</td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="sm" variant="outline" onClick={() => setHist(c)}>
+                        <History className="size-3.5 mr-1.5" /> Histórico
+                      </Button>
                       <Button asChild size="sm" variant="outline">
                         <Link to="/anamnese" search={{ cliente: c.id }}><FileHeart className="size-3.5 mr-1.5" /> Anamnese</Link>
                       </Button>
@@ -151,6 +154,7 @@ function ClientesPage() {
                       </Button>
                     </div>
                   </td>
+
                 </tr>
               ))}
               {filtered.length === 0 && (
