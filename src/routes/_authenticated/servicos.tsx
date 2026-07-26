@@ -377,26 +377,35 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
 
 function ProfessionalManager({ professionals, onDel }: { professionals: any[]; onDel: (p: any) => void }) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true });
+  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true, commission_percent: "" as string });
   const [saving, setSaving] = useState(false);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return toast.error("Nome obrigatório");
     setSaving(true);
-    const { error } = await supabase.from("professionals").insert({
+    const { error } = await (supabase as any).from("professionals").insert({
       name: form.name,
       specialty: form.specialty || null,
       phone: form.phone || null,
       email: form.email || null,
       active: form.active,
+      commission_percent: Number(form.commission_percent || 0),
     });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Profissional cadastrado");
-    setForm({ name: "", specialty: "", phone: "", email: "", active: true });
+    setForm({ name: "", specialty: "", phone: "", email: "", active: true, commission_percent: "" });
     qc.invalidateQueries({ queryKey: ["professionals"] });
   }
+
+  async function setCommission(p: any, value: string) {
+    const { error } = await (supabase as any).from("professionals").update({ commission_percent: Number(value || 0) }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Comissão atualizada");
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
 
   async function toggleActive(p: any) {
     const { error } = await supabase.from("professionals").update({ active: !p.active }).eq("id", p.id);
