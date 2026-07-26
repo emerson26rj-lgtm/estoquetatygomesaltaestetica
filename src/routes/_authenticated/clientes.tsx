@@ -40,6 +40,8 @@ function ClientesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Cliente>(empty);
   const [search, setSearch] = useState("");
+  const [hist, setHist] = useState<any | null>(null);
+
 
   const { data: clientes = [] } = useQuery({
     queryKey: ["clientes"],
