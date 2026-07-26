@@ -109,8 +109,9 @@ function VendasPage() {
   });
   const { data: produtos = [] } = useQuery({
     queryKey: ["products-min"],
-    queryFn: async () => (await supabase.from("products").select("id,name,quantity,sale_price,cost_value").order("name")).data ?? [],
+    queryFn: async () => (await supabase.from("products").select("id,name,quantity,cost_value").order("name")).data ?? [],
   });
+
 
   const subtotal = useMemo(() => items.reduce((s, i) => s + i.unit_price * i.quantity, 0), [items]);
   const total = Math.max(0, subtotal - Number(discount || 0));
