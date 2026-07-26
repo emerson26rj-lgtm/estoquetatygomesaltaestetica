@@ -139,7 +139,7 @@ function VendasPage() {
         }]);
       }
       setOpen(true);
-      navigate({ to: "/vendas", search: {}, replace: true });
+      navigate({ to: "/vendas", search: { ag: undefined }, replace: true });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ag]);
