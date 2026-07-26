@@ -120,6 +120,7 @@ export type Database = {
           notes: string | null
           price: number | null
           professional_id: string
+          sale_id: string | null
           service_id: string | null
           starts_at: string
           status: string
@@ -138,6 +139,7 @@ export type Database = {
           notes?: string | null
           price?: number | null
           professional_id: string
+          sale_id?: string | null
           service_id?: string | null
           starts_at: string
           status?: string
@@ -156,6 +158,7 @@ export type Database = {
           notes?: string | null
           price?: number | null
           professional_id?: string
+          sale_id?: string | null
           service_id?: string | null
           starts_at?: string
           status?: string
@@ -174,6 +177,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
             referencedColumns: ["id"]
           },
           {
@@ -212,6 +222,92 @@ export type Database = {
           entity_id?: string | null
           id?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      cash_movements: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          reason: string | null
+          session_id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          session_id: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          session_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_movements_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cash_sessions: {
+        Row: {
+          closed_at: string | null
+          closed_by: string | null
+          counted_amount: number | null
+          created_at: string
+          difference: number | null
+          expected_amount: number | null
+          id: string
+          notes: string | null
+          opened_at: string
+          opened_by: string | null
+          opening_amount: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          closed_at?: string | null
+          closed_by?: string | null
+          counted_amount?: number | null
+          created_at?: string
+          difference?: number | null
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          opening_amount?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          closed_at?: string | null
+          closed_by?: string | null
+          counted_amount?: number | null
+          created_at?: string
+          difference?: number | null
+          expected_amount?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opened_by?: string | null
+          opening_amount?: number
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -404,6 +500,7 @@ export type Database = {
           paid_date: string | null
           professional_id: string
           reference_date: string
+          sale_id: string | null
           service_amount: number
           service_id: string | null
           updated_at: string
@@ -421,6 +518,7 @@ export type Database = {
           paid_date?: string | null
           professional_id: string
           reference_date?: string
+          sale_id?: string | null
           service_amount?: number
           service_id?: string | null
           updated_at?: string
@@ -438,6 +536,7 @@ export type Database = {
           paid_date?: string | null
           professional_id?: string
           reference_date?: string
+          sale_id?: string | null
           service_amount?: number
           service_id?: string | null
           updated_at?: string
@@ -462,6 +561,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
             referencedColumns: ["id"]
           },
           {
@@ -710,6 +816,7 @@ export type Database = {
       professionals: {
         Row: {
           active: boolean
+          commission_percent: number
           created_at: string
           email: string | null
           google_access_token: string | null
@@ -727,6 +834,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          commission_percent?: number
           created_at?: string
           email?: string | null
           google_access_token?: string | null
@@ -744,6 +852,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          commission_percent?: number
           created_at?: string
           email?: string | null
           google_access_token?: string | null
@@ -786,6 +895,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          kind: string
+          product_id: string | null
           quantity: number
           sale_id: string
           service_id: string | null
@@ -796,6 +907,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          kind?: string
+          product_id?: string | null
           quantity?: number
           sale_id: string
           service_id?: string | null
@@ -806,6 +919,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          kind?: string
+          product_id?: string | null
           quantity?: number
           sale_id?: string
           service_id?: string | null
@@ -814,6 +929,13 @@ export type Database = {
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sale_items_sale_id_fkey"
             columns: ["sale_id"]
@@ -832,45 +954,64 @@ export type Database = {
       }
       sales: {
         Row: {
+          cash_session_id: string | null
           cliente_id: string | null
           created_at: string
           created_by: string | null
+          discount: number
           financial_account_id: string | null
           id: string
           notes: string | null
           payment_method: string
           professional_id: string | null
           sold_at: string
+          status: string
+          subtotal: number | null
           total: number
           updated_at: string
         }
         Insert: {
+          cash_session_id?: string | null
           cliente_id?: string | null
           created_at?: string
           created_by?: string | null
+          discount?: number
           financial_account_id?: string | null
           id?: string
           notes?: string | null
           payment_method: string
           professional_id?: string | null
           sold_at?: string
+          status?: string
+          subtotal?: number | null
           total?: number
           updated_at?: string
         }
         Update: {
+          cash_session_id?: string | null
           cliente_id?: string | null
           created_at?: string
           created_by?: string | null
+          discount?: number
           financial_account_id?: string | null
           id?: string
           notes?: string | null
           payment_method?: string
           professional_id?: string | null
           sold_at?: string
+          status?: string
+          subtotal?: number | null
           total?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sales_cash_session_id_fkey"
+            columns: ["cash_session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sales_cliente_id_fkey"
             columns: ["cliente_id"]
