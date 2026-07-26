@@ -155,7 +155,44 @@ function RelatoriosPage() {
         <h1 className="text-2xl font-semibold tracking-tight mt-1">Relatórios</h1>
       </header>
 
+      <Card className="p-4 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5"><Label>De</Label><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Até</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <Button variant="outline" onClick={() => { setFrom(today()); setTo(today()); }}>Hoje</Button>
+          <Button variant="outline" onClick={() => { setFrom(monthStart()); setTo(today()); }}>Mês atual</Button>
+          <p className="text-xs text-text-muted">Período aplicado aos relatórios de vendas, comissões e financeiro.</p>
+        </div>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Vendas do período</h2>
+          <p className="text-xs text-text-muted mt-1">
+            {salesInPeriod.length} venda(s) · {currency(salesTotal)} — inclui totais por forma de pagamento, por profissional e ranking de serviços.
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => salesPeriodPdf(salesInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+            <Button onClick={exportSalesXlsx} variant="outline"><FileSpreadsheet className="size-4 mr-1.5" /> Excel</Button>
+          </div>
+        </Card>
+
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Comissões</h2>
+          <p className="text-xs text-text-muted mt-1">{commissionsInPeriod.length} registro(s) · {currency(commissionsTotal)} a pagar/pago no período.</p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => commissionsPdf(commissionsInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+          </div>
+        </Card>
+
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Resultado financeiro (DRE)</h2>
+          <p className="text-xs text-text-muted mt-1">{accountsInPeriod.length} lançamento(s) no período — entradas, saídas e resultado.</p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => dreePdf(accountsInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+          </div>
+        </Card>
+
         <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
           <h2 className="text-sm font-semibold">Estoque Atual</h2>
           <p className="text-xs text-text-muted mt-1">{products.length} produtos cadastrados.</p>
@@ -173,6 +210,7 @@ function RelatoriosPage() {
           </div>
         </Card>
       </div>
+
     </div>
   );
 }
