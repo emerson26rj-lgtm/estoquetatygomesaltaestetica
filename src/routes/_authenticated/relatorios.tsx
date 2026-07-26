@@ -1,20 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FileText, FileSpreadsheet } from "lucide-react";
 import { statusOf, statusLabel, currency } from "@/lib/stock";
+import { salesPeriodPdf, commissionsPdf, dreePdf } from "@/lib/sales-reports";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — Taty Gomes Alta Estética Gestão" }] }),
+  head: () => ({
+    meta: [
+      { title: "Relatórios — Taty Gomes Alta Estética Gestão" },
+      { name: "description", content: "Relatórios de estoque, vendas, comissões e resultado financeiro em PDF e Excel." },
+    ],
+  }),
   component: RelatoriosPage,
 });
 
+const today = () => new Date().toISOString().slice(0, 10);
+const monthStart = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1).toISOString().slice(0, 10); };
+
 function RelatoriosPage() {
+  const [from, setFrom] = useState(monthStart());
+  const [to, setTo] = useState(today());
+
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => (await supabase.from("products").select("*, categories(name), suppliers(name)").order("name")).data ?? [],
@@ -23,6 +38,56 @@ function RelatoriosPage() {
     queryKey: ["movements"],
     queryFn: async () => (await supabase.from("movements").select("*, products(name)").order("created_at", { ascending: false }).limit(500)).data ?? [],
   });
+  const { data: sales = [] } = useQuery({
+    queryKey: ["sales"],
+    queryFn: async () =>
+      (await (supabase as any).from("sales")
+        .select("*, cliente:clientes(nome), professional:professionals(name), sale_items(*)")
+        .order("sold_at", { ascending: false })).data ?? [],
+  });
+  const { data: commissions = [] } = useQuery({
+    queryKey: ["commissions"],
+    queryFn: async () =>
+      (await (supabase as any).from("commissions")
+        .select("*, professional:professionals(name), service:services(name)")
+        .order("reference_date", { ascending: false })).data ?? [],
+  });
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["financial_accounts"],
+    queryFn: async () => (await (supabase as any).from("financial_accounts").select("*").order("due_date")).data ?? [],
+  });
+
+  const salesInPeriod = useMemo(
+    () => sales.filter((s: any) => s.sold_at.slice(0, 10) >= from && s.sold_at.slice(0, 10) <= to),
+    [sales, from, to],
+  );
+  const commissionsInPeriod = useMemo(
+    () => commissions.filter((c: any) => c.reference_date >= from && c.reference_date <= to),
+    [commissions, from, to],
+  );
+  const accountsInPeriod = useMemo(
+    () => accounts.filter((a: any) => a.due_date && a.due_date >= from && a.due_date <= to),
+    [accounts, from, to],
+  );
+
+  const salesTotal = salesInPeriod.reduce((s: number, v: any) => s + Number(v.total), 0);
+  const commissionsTotal = commissionsInPeriod.reduce((s: number, v: any) => s + Number(v.commission_amount), 0);
+
+  function exportSalesXlsx() {
+    const rows = salesInPeriod.map((s: any) => ({
+      Data: new Date(s.sold_at).toLocaleString("pt-BR"),
+      Cliente: s.cliente?.nome ?? "Balcão",
+      Profissional: s.professional?.name ?? "",
+      Itens: (s.sale_items ?? []).map((i: any) => `${i.service_name} x${i.quantity}`).join(" | "),
+      Pagamento: s.payment_method,
+      Desconto: Number(s.discount ?? 0),
+      Total: Number(s.total),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+    XLSX.writeFile(wb, `vendas-${from}-a-${to}.xlsx`);
+  }
+
 
   function exportProductsPdf() {
     const doc = new jsPDF();
