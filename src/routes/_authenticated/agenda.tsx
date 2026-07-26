@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, ChevronLeft, ChevronRight, Trash2, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Trash2, Calendar as CalendarIcon, AlertCircle, ShoppingCart } from "lucide-react";
 import { upsertAppointment, deleteAppointment } from "@/lib/appointments.functions";
 import { currency } from "@/lib/stock";
 
