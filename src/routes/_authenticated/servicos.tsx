@@ -473,6 +473,17 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
               </Button>
             </div>
             <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+              <Label className="text-[11px] text-text-muted">Comissão (%)</Label>
+              <Input
+                className="h-7 w-20 text-xs"
+                type="number" step="0.01" min={0} max={100}
+                defaultValue={p.commission_percent ?? 0}
+                onBlur={(e) => { if (Number(e.target.value) !== Number(p.commission_percent ?? 0)) setCommission(p, e.target.value); }}
+              />
+              <span className="text-[10px] text-text-muted">gerada automaticamente em cada venda de serviço</span>
+            </div>
+            <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+
               <CalendarIcon className="size-3.5 text-text-muted" />
               {p.google_refresh_token ? (
                 <>
