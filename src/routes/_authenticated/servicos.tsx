@@ -442,7 +442,9 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
         <div className="col-span-2 space-y-1"><Label className="text-xs">Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={150} required /></div>
         <div className="space-y-1"><Label className="text-xs">Especialidade</Label><Input value={form.specialty} onChange={(e) => setForm({ ...form, specialty: e.target.value })} maxLength={100} /></div>
         <div className="space-y-1"><Label className="text-xs">Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} maxLength={30} /></div>
-        <div className="col-span-2 space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="space-y-1"><Label className="text-xs">Comissão (%)</Label><Input type="number" step="0.01" min={0} max={100} value={form.commission_percent} onChange={(e) => setForm({ ...form, commission_percent: e.target.value })} placeholder="0" /></div>
+
         <div className="col-span-2 flex justify-end">
           <Button type="submit" size="sm" disabled={saving} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
             <Plus className="size-4 mr-1" /> {saving ? "Salvando..." : "Cadastrar"}
