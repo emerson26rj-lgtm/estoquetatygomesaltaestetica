@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, ChevronLeft, ChevronRight, Trash2, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Trash2, Calendar as CalendarIcon, AlertCircle, ShoppingCart } from "lucide-react";
 import { upsertAppointment, deleteAppointment } from "@/lib/appointments.functions";
 import { currency } from "@/lib/stock";
 
@@ -177,24 +177,43 @@ function AgendaPage() {
                 {byDay[i].map((a: any) => {
                   const st = STATUS[a.status] ?? STATUS.scheduled;
                   return (
-                    <button
+                    <div
                       key={a.id}
-                      onClick={() => { setEditing(a); setDefaultStart(null); setOpen(true); }}
-                      className="w-full text-left p-2 rounded-md bg-page-bg/70 hover:bg-page-bg border border-border/40 transition"
+                      className="w-full text-left p-2 rounded-md bg-page-bg/70 border border-border/40 transition"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-medium">{fmtTime(a.starts_at)}–{fmtTime(a.ends_at)}</span>
-                        <Badge variant="secondary" className={`text-[10px] h-4 px-1.5 ${st.cls}`}>{st.label}</Badge>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => { setEditing(a); setDefaultStart(null); setOpen(true); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") { setEditing(a); setDefaultStart(null); setOpen(true); } }}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium">{fmtTime(a.starts_at)}–{fmtTime(a.ends_at)}</span>
+                          <Badge variant="secondary" className={`text-[10px] h-4 px-1.5 ${st.cls}`}>{st.label}</Badge>
+                        </div>
+                        <p className="text-sm font-medium truncate mt-0.5">{a.services?.name || "Atendimento"}</p>
+                        <p className="text-[11px] text-text-muted truncate">
+                          {a.client_name || a.clientes?.nome || "—"} · {a.professionals?.name}
+                        </p>
+                        {a.google_event_id && <p className="text-[10px] text-emerald-600 mt-0.5">✓ Google</p>}
+                        {a.google_sync_error && <p className="text-[10px] text-danger mt-0.5 flex items-center gap-1"><AlertCircle className="size-2.5" /> Erro sync</p>}
                       </div>
-                      <p className="text-sm font-medium truncate mt-0.5">{a.services?.name || "Atendimento"}</p>
-                      <p className="text-[11px] text-text-muted truncate">
-                        {a.client_name || a.clientes?.nome || "—"} · {a.professionals?.name}
-                      </p>
-                      {a.google_event_id && <p className="text-[10px] text-emerald-600 mt-0.5">✓ Google</p>}
-                      {a.google_sync_error && <p className="text-[10px] text-danger mt-0.5 flex items-center gap-1"><AlertCircle className="size-2.5" /> Erro sync</p>}
-                    </button>
+                      {a.sale_id ? (
+                        <p className="text-[10px] text-emerald-700 mt-1">✓ Venda registrada</p>
+                      ) : (
+                        <Link
+                          to="/vendas"
+                          search={{ ag: a.id }}
+                          className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-medium text-brand-primary hover:underline"
+                        >
+                          <ShoppingCart className="size-3" /> Finalizar em venda
+                        </Link>
+                      )}
+                    </div>
                   );
                 })}
+
               </div>
             </Card>
           );

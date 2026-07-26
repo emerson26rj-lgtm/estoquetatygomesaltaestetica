@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, FileHeart, Pencil } from "lucide-react";
+import { Plus, Trash2, FileHeart, Pencil, History as HistoryIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { currency } from "@/lib/stock";
+
 
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({ meta: [{ title: "Clientes — Taty Gomes Alta Estética Gestão" }] }),
@@ -38,6 +40,8 @@ function ClientesPage() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Cliente>(empty);
   const [search, setSearch] = useState("");
+  const [hist, setHist] = useState<any | null>(null);
+
 
   const { data: clientes = [] } = useQuery({
     queryKey: ["clientes"],
@@ -140,6 +144,10 @@ function ClientesPage() {
                   <td className="p-3 text-text-muted">{c.cidade ?? "—"}</td>
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="sm" variant="outline" onClick={() => setHist(c)}>
+                        <HistoryIcon className="size-3.5 mr-1.5" /> Histórico
+                      </Button>
+
                       <Button asChild size="sm" variant="outline">
                         <Link to="/anamnese" search={{ cliente: c.id }}><FileHeart className="size-3.5 mr-1.5" /> Anamnese</Link>
                       </Button>
@@ -151,6 +159,7 @@ function ClientesPage() {
                       </Button>
                     </div>
                   </td>
+
                 </tr>
               ))}
               {filtered.length === 0 && (
@@ -160,6 +169,63 @@ function ClientesPage() {
           </table>
         </div>
       </Card>
+
+      <Dialog open={!!hist} onOpenChange={(v) => !v && setHist(null)}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Histórico de {hist?.nome}</DialogTitle></DialogHeader>
+          {hist && <ClienteHistorico clienteId={hist.id} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
+function ClienteHistorico({ clienteId }: { clienteId: string }) {
+  const { data } = useQuery({
+    queryKey: ["cliente-360", clienteId],
+    queryFn: async () => {
+      const [vendas, ags, anms] = await Promise.all([
+        (supabase as any).from("sales").select("id,sold_at,total,payment_method,sale_items(service_name,quantity)").eq("cliente_id", clienteId).order("sold_at", { ascending: false }),
+        (supabase as any).from("appointments").select("id,starts_at,status,services(name)").eq("client_id", clienteId).order("starts_at", { ascending: false }).limit(20),
+        (supabase as any).from("anamneses").select("id,created_at").eq("cliente_id", clienteId).order("created_at", { ascending: false }),
+      ]);
+      return { vendas: vendas.data ?? [], ags: ags.data ?? [], anms: anms.data ?? [] };
+    },
+  });
+  if (!data) return <p className="text-sm text-text-muted">Carregando…</p>;
+  const gasto = data.vendas.reduce((s: number, v: any) => s + Number(v.total), 0);
+  return (
+    <div className="space-y-4 text-sm">
+      <div className="grid grid-cols-3 gap-2">
+        <div className="p-3 rounded-md bg-page-bg/60"><p className="text-[10px] uppercase text-text-muted">Total gasto</p><p className="font-medium text-brand-primary">{currency(gasto)}</p></div>
+        <div className="p-3 rounded-md bg-page-bg/60"><p className="text-[10px] uppercase text-text-muted">Atendimentos</p><p className="font-medium">{data.ags.length}</p></div>
+        <div className="p-3 rounded-md bg-page-bg/60"><p className="text-[10px] uppercase text-text-muted">Anamneses</p><p className="font-medium">{data.anms.length}</p></div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Vendas</p>
+        <div className="divide-y divide-border/40">
+          {data.vendas.map((v: any) => (
+            <div key={v.id} className="py-2 flex justify-between gap-2">
+              <span className="text-text-muted">{new Date(v.sold_at).toLocaleDateString("pt-BR")} · {(v.sale_items ?? []).map((i: any) => i.service_name).join(", ")}</span>
+              <span className="font-medium">{currency(Number(v.total))}</span>
+            </div>
+          ))}
+          {data.vendas.length === 0 && <p className="py-2 text-text-muted text-xs">Nenhuma venda.</p>}
+        </div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Agendamentos</p>
+        <div className="divide-y divide-border/40">
+          {data.ags.map((a: any) => (
+            <div key={a.id} className="py-2 flex justify-between gap-2">
+              <span className="text-text-muted">{new Date(a.starts_at).toLocaleString("pt-BR")}</span>
+              <span>{a.services?.name ?? "—"}</span>
+            </div>
+          ))}
+          {data.ags.length === 0 && <p className="py-2 text-text-muted text-xs">Nenhum agendamento.</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+

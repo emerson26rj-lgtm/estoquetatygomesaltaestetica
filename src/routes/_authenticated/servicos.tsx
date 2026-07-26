@@ -377,26 +377,35 @@ function ServiceForm({ initial, categories, professionals, products, onSaved }: 
 
 function ProfessionalManager({ professionals, onDel }: { professionals: any[]; onDel: (p: any) => void }) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true });
+  const [form, setForm] = useState({ name: "", specialty: "", phone: "", email: "", active: true, commission_percent: "" as string });
   const [saving, setSaving] = useState(false);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return toast.error("Nome obrigatório");
     setSaving(true);
-    const { error } = await supabase.from("professionals").insert({
+    const { error } = await (supabase as any).from("professionals").insert({
       name: form.name,
       specialty: form.specialty || null,
       phone: form.phone || null,
       email: form.email || null,
       active: form.active,
+      commission_percent: Number(form.commission_percent || 0),
     });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Profissional cadastrado");
-    setForm({ name: "", specialty: "", phone: "", email: "", active: true });
+    setForm({ name: "", specialty: "", phone: "", email: "", active: true, commission_percent: "" });
     qc.invalidateQueries({ queryKey: ["professionals"] });
   }
+
+  async function setCommission(p: any, value: string) {
+    const { error } = await (supabase as any).from("professionals").update({ commission_percent: Number(value || 0) }).eq("id", p.id);
+    if (error) return toast.error(error.message);
+    toast.success("Comissão atualizada");
+    qc.invalidateQueries({ queryKey: ["professionals"] });
+  }
+
 
   async function toggleActive(p: any) {
     const { error } = await supabase.from("professionals").update({ active: !p.active }).eq("id", p.id);
@@ -433,7 +442,9 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
         <div className="col-span-2 space-y-1"><Label className="text-xs">Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={150} required /></div>
         <div className="space-y-1"><Label className="text-xs">Especialidade</Label><Input value={form.specialty} onChange={(e) => setForm({ ...form, specialty: e.target.value })} maxLength={100} /></div>
         <div className="space-y-1"><Label className="text-xs">Telefone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} maxLength={30} /></div>
-        <div className="col-span-2 space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="space-y-1"><Label className="text-xs">E-mail</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} maxLength={150} /></div>
+        <div className="space-y-1"><Label className="text-xs">Comissão (%)</Label><Input type="number" step="0.01" min={0} max={100} value={form.commission_percent} onChange={(e) => setForm({ ...form, commission_percent: e.target.value })} placeholder="0" /></div>
+
         <div className="col-span-2 flex justify-end">
           <Button type="submit" size="sm" disabled={saving} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
             <Plus className="size-4 mr-1" /> {saving ? "Salvando..." : "Cadastrar"}
@@ -462,6 +473,17 @@ function ProfessionalManager({ professionals, onDel }: { professionals: any[]; o
               </Button>
             </div>
             <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+              <Label className="text-[11px] text-text-muted">Comissão (%)</Label>
+              <Input
+                className="h-7 w-20 text-xs"
+                type="number" step="0.01" min={0} max={100}
+                defaultValue={p.commission_percent ?? 0}
+                onBlur={(e) => { if (Number(e.target.value) !== Number(p.commission_percent ?? 0)) setCommission(p, e.target.value); }}
+              />
+              <span className="text-[10px] text-text-muted">gerada automaticamente em cada venda de serviço</span>
+            </div>
+            <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+
               <CalendarIcon className="size-3.5 text-text-muted" />
               {p.google_refresh_token ? (
                 <>

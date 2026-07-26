@@ -1,20 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { FileText, FileSpreadsheet } from "lucide-react";
 import { statusOf, statusLabel, currency } from "@/lib/stock";
+import { salesPeriodPdf, commissionsPdf, dreePdf } from "@/lib/sales-reports";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — Taty Gomes Alta Estética Gestão" }] }),
+  head: () => ({
+    meta: [
+      { title: "Relatórios — Taty Gomes Alta Estética Gestão" },
+      { name: "description", content: "Relatórios de estoque, vendas, comissões e resultado financeiro em PDF e Excel." },
+    ],
+  }),
   component: RelatoriosPage,
 });
 
+const today = () => new Date().toISOString().slice(0, 10);
+const monthStart = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1).toISOString().slice(0, 10); };
+
 function RelatoriosPage() {
+  const [from, setFrom] = useState(monthStart());
+  const [to, setTo] = useState(today());
+
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => (await supabase.from("products").select("*, categories(name), suppliers(name)").order("name")).data ?? [],
@@ -23,6 +38,56 @@ function RelatoriosPage() {
     queryKey: ["movements"],
     queryFn: async () => (await supabase.from("movements").select("*, products(name)").order("created_at", { ascending: false }).limit(500)).data ?? [],
   });
+  const { data: sales = [] } = useQuery({
+    queryKey: ["sales"],
+    queryFn: async () =>
+      (await (supabase as any).from("sales")
+        .select("*, cliente:clientes(nome), professional:professionals(name), sale_items(*)")
+        .order("sold_at", { ascending: false })).data ?? [],
+  });
+  const { data: commissions = [] } = useQuery({
+    queryKey: ["commissions"],
+    queryFn: async () =>
+      (await (supabase as any).from("commissions")
+        .select("*, professional:professionals(name), service:services(name)")
+        .order("reference_date", { ascending: false })).data ?? [],
+  });
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["financial_accounts"],
+    queryFn: async () => (await (supabase as any).from("financial_accounts").select("*").order("due_date")).data ?? [],
+  });
+
+  const salesInPeriod = useMemo(
+    () => sales.filter((s: any) => s.sold_at.slice(0, 10) >= from && s.sold_at.slice(0, 10) <= to),
+    [sales, from, to],
+  );
+  const commissionsInPeriod = useMemo(
+    () => commissions.filter((c: any) => c.reference_date >= from && c.reference_date <= to),
+    [commissions, from, to],
+  );
+  const accountsInPeriod = useMemo(
+    () => accounts.filter((a: any) => a.due_date && a.due_date >= from && a.due_date <= to),
+    [accounts, from, to],
+  );
+
+  const salesTotal = salesInPeriod.reduce((s: number, v: any) => s + Number(v.total), 0);
+  const commissionsTotal = commissionsInPeriod.reduce((s: number, v: any) => s + Number(v.commission_amount), 0);
+
+  function exportSalesXlsx() {
+    const rows = salesInPeriod.map((s: any) => ({
+      Data: new Date(s.sold_at).toLocaleString("pt-BR"),
+      Cliente: s.cliente?.nome ?? "Balcão",
+      Profissional: s.professional?.name ?? "",
+      Itens: (s.sale_items ?? []).map((i: any) => `${i.service_name} x${i.quantity}`).join(" | "),
+      Pagamento: s.payment_method,
+      Desconto: Number(s.discount ?? 0),
+      Total: Number(s.total),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+    XLSX.writeFile(wb, `vendas-${from}-a-${to}.xlsx`);
+  }
+
 
   function exportProductsPdf() {
     const doc = new jsPDF();
@@ -90,7 +155,44 @@ function RelatoriosPage() {
         <h1 className="text-2xl font-semibold tracking-tight mt-1">Relatórios</h1>
       </header>
 
+      <Card className="p-4 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5"><Label>De</Label><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Até</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <Button variant="outline" onClick={() => { setFrom(today()); setTo(today()); }}>Hoje</Button>
+          <Button variant="outline" onClick={() => { setFrom(monthStart()); setTo(today()); }}>Mês atual</Button>
+          <p className="text-xs text-text-muted">Período aplicado aos relatórios de vendas, comissões e financeiro.</p>
+        </div>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Vendas do período</h2>
+          <p className="text-xs text-text-muted mt-1">
+            {salesInPeriod.length} venda(s) · {currency(salesTotal)} — inclui totais por forma de pagamento, por profissional e ranking de serviços.
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => salesPeriodPdf(salesInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+            <Button onClick={exportSalesXlsx} variant="outline"><FileSpreadsheet className="size-4 mr-1.5" /> Excel</Button>
+          </div>
+        </Card>
+
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Comissões</h2>
+          <p className="text-xs text-text-muted mt-1">{commissionsInPeriod.length} registro(s) · {currency(commissionsTotal)} a pagar/pago no período.</p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => commissionsPdf(commissionsInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+          </div>
+        </Card>
+
+        <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
+          <h2 className="text-sm font-semibold">Resultado financeiro (DRE)</h2>
+          <p className="text-xs text-text-muted mt-1">{accountsInPeriod.length} lançamento(s) no período — entradas, saídas e resultado.</p>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={() => dreePdf(accountsInPeriod, from, to)} variant="outline"><FileText className="size-4 mr-1.5" /> PDF</Button>
+          </div>
+        </Card>
+
         <Card className="p-5 bg-surface ring-1 ring-black/5 border-0 shadow-none">
           <h2 className="text-sm font-semibold">Estoque Atual</h2>
           <p className="text-xs text-text-muted mt-1">{products.length} produtos cadastrados.</p>
@@ -108,6 +210,7 @@ function RelatoriosPage() {
           </div>
         </Card>
       </div>
+
     </div>
   );
 }
