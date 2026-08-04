@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as AuthenticatedTermosRouteImport } from './routes/_authenticated/termos'
 import { Route as AuthenticatedServicosRouteImport } from './routes/_authenticated/servicos'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedProntuarioRouteImport } from './routes/_authenticated/prontuario'
@@ -59,6 +60,11 @@ const AuthenticatedVendasRoute = AuthenticatedVendasRouteImport.update({
 const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTermosRoute = AuthenticatedTermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedServicosRoute = AuthenticatedServicosRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/prontuario': typeof AuthenticatedProntuarioRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/servicos': typeof AuthenticatedServicosRoute
+  '/termos': typeof AuthenticatedTermosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/prontuario': typeof AuthenticatedProntuarioRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/servicos': typeof AuthenticatedServicosRoute
+  '/termos': typeof AuthenticatedTermosRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/_authenticated/prontuario': typeof AuthenticatedProntuarioRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/servicos': typeof AuthenticatedServicosRoute
+  '/_authenticated/termos': typeof AuthenticatedTermosRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/api/chat': typeof ApiChatRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/prontuario'
     | '/relatorios'
     | '/servicos'
+    | '/termos'
     | '/usuarios'
     | '/vendas'
     | '/api/chat'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/prontuario'
     | '/relatorios'
     | '/servicos'
+    | '/termos'
     | '/usuarios'
     | '/vendas'
     | '/api/chat'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prontuario'
     | '/_authenticated/relatorios'
     | '/_authenticated/servicos'
+    | '/_authenticated/termos'
     | '/_authenticated/usuarios'
     | '/_authenticated/vendas'
     | '/api/chat'
@@ -339,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/termos': {
+      id: '/_authenticated/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof AuthenticatedTermosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/servicos': {
@@ -472,6 +491,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProntuarioRoute: typeof AuthenticatedProntuarioRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedServicosRoute: typeof AuthenticatedServicosRoute
+  AuthenticatedTermosRoute: typeof AuthenticatedTermosRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
 }
@@ -492,6 +512,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProntuarioRoute: AuthenticatedProntuarioRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedServicosRoute: AuthenticatedServicosRoute,
+  AuthenticatedTermosRoute: AuthenticatedTermosRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
 }
@@ -509,13 +530,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

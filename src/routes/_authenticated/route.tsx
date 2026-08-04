@@ -27,6 +27,7 @@ const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
   { to: "/clientes", label: "Clientes", icon: Users, adminOnly: false },
   { to: "/anamnese", label: "Anamnese", icon: FileHeart, adminOnly: false },
+  { to: "/termos", label: "Termos", icon: FileSignature, adminOnly: false },
   { to: "/agenda", label: "Agenda", icon: CalendarDays, adminOnly: false },
   { to: "/produtos", label: "Produtos", icon: Package, adminOnly: false },
   { to: "/servicos", label: "Serviços", icon: Scissors, adminOnly: false },
