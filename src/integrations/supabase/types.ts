@@ -579,6 +579,124 @@ export type Database = {
           },
         ]
       }
+      consent_templates: {
+        Row: {
+          active: boolean
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          service_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          service_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          service_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_templates_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consents: {
+        Row: {
+          body: string
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          professional_id: string | null
+          service_id: string | null
+          signature: string | null
+          signed_at: string | null
+          template_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          professional_id?: string | null
+          service_id?: string | null
+          signature?: string | null
+          signed_at?: string | null
+          template_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          professional_id?: string | null
+          service_id?: string | null
+          signature?: string | null
+          signed_at?: string | null
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consents_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consents_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consents_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "consent_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_accounts: {
         Row: {
           amount: number
